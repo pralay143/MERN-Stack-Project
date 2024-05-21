@@ -1,0 +1,43 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.tcontainer{
+    color: black;
+    background-color: rgb(207, 205, 205);
+}
+
+.font{
+    font-size: 25px;
+    font-weight: 700;
+    border: 1px solid rgb(207, 205, 205);
+    background-color: burlywood;
+    margin-bottom: 25px;
+}
+.btn{
+    margin-bottom: 25px;
+    margin-left: 10%;
+    margin-top: 10px;
+    align-items: end;
+    color: black;
+    font-weight: 600;
+    background-color: violet;
+    padding: 5px;
+    border-radius: 5px;
+    
+}
+.btnn{
+    color: black;
+    background-color:violet ;
+    font-size: small;
+    padding: 2px;
+    border-radius: 5px; 
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+.border{
+    border: 2px solid gray;
+    padding: 4px;
+}

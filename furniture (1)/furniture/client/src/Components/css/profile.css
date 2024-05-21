@@ -1,0 +1,43 @@
+ *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.border{
+    font-size: 25px;
+    font-weight: 500;
+    background-color: brown;
+    color: blanchedalmond;
+}
+.button{
+    position: absolute;
+    right: 0; 
+    margin-right: 10px;
+    margin-top: 10px;  
+    color: blueviolet;
+}
+
+.tab{
+    margin-left: 30%;
+    margin-top: 20px;
+}
+table,
+    th,
+    tr,
+    td {
+        border: 2px solid black;
+        border-collapse: collapse;
+        padding: 10px;
+        text-align: left;
+        border-spacing: 5px;
+    }
+    table
+     td
+     ,th
+    {
+        font-size: 20px;
+        font-weight: 500;
+        color: rgb(39, 26, 26);
+        border: 2px solid black;
+    } 
