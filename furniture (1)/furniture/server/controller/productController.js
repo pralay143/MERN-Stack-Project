@@ -1,11 +1,13 @@
 const productSchema=require('../schema/productSchema')
 const path=require('path')
+const fs=require('fs')
 const multer=require('multer')
 
-
+const uploadDir = path.resolve(__dirname, '..', '..', 'client', 'public', 'uploads')
+fs.mkdirSync(uploadDir, { recursive: true })
 
 const storage = multer.diskStorage({
-    destination: "C:/Users/prath/Downloads/furniture (1)/furniture/client/public/uploads",
+    destination: (req, file, cb) => cb(null, uploadDir),
     filename: function(req, file, cb){
         cb(null,file.originalname);
     }
@@ -37,8 +39,8 @@ const product = multer(
             console.log(req.file.size);
             //abs path
             console.log(req.file.path);
-            var p= path.join(__dirname, 'C:/Users/roman/OneDrive/Desktop/furniture/client/public/uploads/'+req.file.originalname);
-            console.log(p);
+            const filePath = path.join(uploadDir, req.file.originalname)
+            console.log(filePath);
 
             //type
             
@@ -53,7 +55,7 @@ const product = multer(
                 if(req.file){
                     product.file.name= req.file.originalname,
                     product.file.size= req.file.size,
-                    product.file.url=p,
+                    product.file.url= path.join('/uploads', req.file.originalname).replace(/\\/g, '/'),
                     product.file.type= req.file.mimetype 
                 }
 
