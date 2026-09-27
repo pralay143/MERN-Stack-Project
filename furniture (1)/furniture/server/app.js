@@ -1,10 +1,7 @@
-const mongoose=require('mongoose')  /*MONGOOSE AND EXPRESS REQUIRE AND USE ....*/
+require('dotenv').config({ quiet: true })
+const mongoose=require('mongoose')
 const express=require('express')
 const cors = require('cors')
-const bodyParser = require('body-parser')
-
-/*app.use(bodyParser.urlencoded({extended: true}))
-app.use(express.urlencoded({extended:true}))*/
 
 const app =express()
 app.use(cors())
@@ -37,7 +34,13 @@ app.use('/vendor',vendor_detailRoutes)
 app.use('/vproduct',vendor_productRoutes)
 
 
-mongoose.connect("mongodb://127.0.0.1:27017/database",{},  (err)=>{
+const MONGO_URI=process.env.MONGO_URI
+if(!MONGO_URI){
+    console.log('MONGO_URI is not set. Copy .env.example to .env and fill it in.')
+    process.exit(1)
+}
+
+mongoose.connect(MONGO_URI,{},  (err)=>{
     if(err){
       console.log("error in database connection........", err.message)
     }else
@@ -47,7 +50,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/database",{},  (err)=>{
     }
 })
 
-const PORT=3550
+const PORT=process.env.PORT || 3550
 app.listen(PORT,()=>{
     console.log("server is running at port number ",PORT)
 })
