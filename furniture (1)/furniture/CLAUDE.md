@@ -34,9 +34,9 @@ The client lints through CRA's `react-app` ESLint config during `npm start`/`bui
 
 ## Runtime requirements and gotchas
 
-- MongoDB must be running at `MONGO_URI` (from `server/.env`) before the API starts. The server exits within 5s if it can't connect.
+- `server/.env` needs `MONGO_URI` and `JWT_SECRET` (32+ chars); the server exits at startup without them. MongoDB must be reachable (the server exits within 5s otherwise). `.env.example` documents every setting.
 - A stale server process can hold port 3550, so a new instance fails with EADDRINUSE while the old one keeps serving. Check with `netstat -ano | findstr :3550`.
-- Role ids are fixed in `server/src/seed/seedData.js`. Customer `646afa59a201bba44448c945` and Vendor `646afa4fa201bba44448c943` are also hard-coded in `client/src/Components/pages/Register.js`, so keep them in sync. Login redirects on `role.name` (`Customer` / `Vendor` / `Admin`).
+- Role ids are fixed in `server/src/seed/seedData.js`. Registration always creates a Customer; only an admin can change a role (PATCH `/api/v1/users/:id`). Registration fails until the roles exist, so run `npm run seed` on a fresh database.
 - Money is stored as **integer paise** (`server/src/utils/money.js`). Only the legacy routes convert to and from rupees (`basePrice`).
 
 ## Server architecture
@@ -46,9 +46,18 @@ The client lints through CRA's `react-app` ESLint config during `npm start`/`bui
 - Each feature module holds `<feature>.model.js`, `.service.js` (all database calls), `.controller.js` (thin handlers wrapped in `utils/asyncHandler`) and `.routes.js` (REST: `GET /`, `POST /`, `GET|PATCH|DELETE /:id`). The cart, address, order and payment modules only have models so far.
 - The REST API lives under `/api/v1` (`/auth/{register,login}`, `/users`, `/products`, `/categories`, …). Responses are `{ message, data }`, and creates return 201.
 - `src/legacy/legacy.routes.js` keeps the old URLs the CRA client calls (`/user/user`, `/product/product`, …), mapped onto the same controllers with small adapters for renamed fields. `tests/legacy-routes.test.js` guards that contract. Delete both once a new client replaces the CRA app.
-- Errors: throw `utils/ApiError` (or let Mongoose throw). `middleware/errorHandler.js` maps errors to 400/401/404/409/500 JSON and never sends internals. `utils/ensureFound` turns a null lookup into a 404.
-- Uploads: `middleware/upload.js` (multer, field `file`). Product images go to `client/public/uploads` (the CRA client shows them from `/uploads/<name>`); other uploads go to `server/uploads`. Files keep their original names.
-- No authentication yet: every route is public, passwords are stored in plaintext, and login returns an array of matching users. The client stores the user's `_id` in `localStorage` under `_id`.
+- Errors: throw `utils/ApiError` (or let Mongoose throw). `middleware/errorHandler.js` maps errors to 400/401/403/404/409/413/500 JSON and never sends internals. `utils/ensureFound` turns a null lookup into a 404.
+- Route order for writes: guards → upload (if any) → `validate(schema)` → controller, e.g. `router.post('/', ...vendorOrAdmin, ...uploadImage, validate(productSchemas.create), productController.create)`. The legacy router must use the same guards.
+
+## Security model
+
+- **Auth**: `POST /api/v1/auth/login` sets an httpOnly `token` cookie (a JWT with the user id and role, `utils/session.js`); `/auth/logout` clears it; `GET /auth/me` returns the user. In `middleware/auth.js`, `requireAuth` reloads the user from the database on every request, `requireRole('admin', 'vendor')` checks roles, and `adminOnly` / `vendorOrAdmin` are ready-made guard arrays. Clients must send requests with credentials (axios `withCredentials: true`).
+- **Ownership** (`utils/ownership.js`, checked in controllers): vendors change only their own products and vendor profile; users read/update only their own account. Controllers set owner fields (`product.user`, `vendor.userId`) from `req.user`, never from the body.
+- **Passwords**: hashed with bcrypt by User model hooks. `select: false` plus a toJSON transform keep them out of responses; only login uses `.select('+password')`.
+- **Validation**: each module has a `<feature>.validation.js` (Zod; shared rules in `utils/validators.js`). `middleware/validate.js` replaces `req.body` with the parsed result, dropping unknown keys (mass-assignment protection).
+- **Hardening** (`middleware/security.js`): Helmet, CORS only for `CORS_ORIGINS` with credentials, 403 for writes whose `Origin` isn't allowlisted, rate limits on login (failed attempts) and registration.
+- **Uploads** (`middleware/upload.js`): JPEG/PNG/WebP only, checked by content; `MAX_UPLOAD_MB`; random UUID filenames; stored in `UPLOAD_DIR` (default `server/uploads`) and served at `/uploads/<name>`.
+- **Tests**: `tests/access.test.js` discovers every route and requires 401 when anonymous unless the route is on its `PUBLIC` list, and 403 for roles a `requireRole` guard excludes. Add new public routes to that list deliberately. `tests/helpers/auth.js` gives logged-in agents per role; `tests/setup/env.js` sets test-only env (low bcrypt cost, temporary upload folder).
 
 ## Client architecture
 
@@ -57,4 +66,4 @@ The client lints through CRA's `react-app` ESLint config during `npm start`/`bui
   - Admin dashboard in `src/dashbord/` (sic), nested under `/admindashboard/*` with the `AppDashbord.js` sidebar layout
   - Vendor dashboard in `src/Newdashborad/` (sic), nested under `/Vendordashboard/*`. Its page files often carry an `11` suffix to avoid name clashes with the admin pages.
 - There is no API client module or base-URL config. Components call axios directly with hard-coded legacy URLs such as `http://localhost:3550/user/user`. Some leftover calls point at ports 4000/5000 (`/pg/...`, `/cart/...`, `/Bills/...`) that no server here provides.
-- The logged-in user is identified only by `localStorage.getItem("_id")`.
+- The logged-in user is identified only by `localStorage.getItem("_id")`. The CRA client never sends the login cookie, so every protected screen gets 401; it is being replaced by a new client.
