@@ -1,45 +1,18 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose')
 
-const Schema=mongoose.Schema
+const vendorSchema = new mongoose.Schema(
+    {
+        vendorName: { type: String, required: true, trim: true },
+        address: { type: String, trim: true },
+        stateId: { type: mongoose.Schema.Types.ObjectId, ref: 'State' },
+        cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City' },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
+        pincode: { type: String, trim: true },
+        contactNum: { type: String, trim: true },
+        customerSupportNumber: { type: String, trim: true },
+        feedbackEmail: { type: String, lowercase: true, trim: true },
+    },
+    { timestamps: true }
+)
 
-const vendor_detailSchema= new Schema({
-    vendorName:{
-        type:String,
-        
-    },
-    address:{
-        type:String,
-        
-    },
-    stateId:{
-        type:Schema.Types.ObjectId,
-        ref:'state'
-    },
-    cityId:{
-        type:Schema.Types.ObjectId,
-        ref:'city'
-    },
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:'user'
-    },
-    pincode:{
-        type:String,
-        
-    },
-    contactNum:{
-        type:String,
-        
-    },
-    customerSupportNumber:{
-        type:String,
-        
-    },
-    feedbackemail:{
-        type:String,
-        
-    },
-})
-
-
-module.exports=mongoose.model('vendor_detail',vendor_detailSchema)
+module.exports = mongoose.model('Vendor', vendorSchema)

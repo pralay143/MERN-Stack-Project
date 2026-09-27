@@ -83,7 +83,7 @@ describe('products', () => {
             .post(v1('/products'))
             .field('productName', 'Arm Chair')
             .field('categoryId', categoryId)
-            .field('basePrice', '12000')
+            .field('price', '1200000') // ₹12,000 in paise
             .attach('file', PNG_1PX, TEST_IMAGE_NAME)
         expect(res.status).toBe(201)
         expect(res.body.data.file.url).toMatch(/^\/uploads\//)

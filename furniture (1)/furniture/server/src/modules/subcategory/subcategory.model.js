@@ -1,18 +1,12 @@
-const mongoose=require('mongoose')
-const Schema=mongoose.Schema
+const mongoose = require('mongoose')
 
-const subcategorySchema=new Schema({
-    categoryDetail:{
-        type:Schema.Types.ObjectId,
-        ref:'/category'
+const subcategorySchema = new mongoose.Schema(
+    {
+        subcategoryName: { type: String, required: true, trim: true },
+        categoryDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true, index: true },
+        isActive: { type: Boolean, default: true },
     },
-    subcategoryName:{
-        type:String
-    },
-    isActive:{
-        type: String
-    }
-})
+    { timestamps: true }
+)
 
-
-module.exports=mongoose.model('/subcategory',subcategorySchema)
+module.exports = mongoose.model('Subcategory', subcategorySchema)

@@ -1,29 +1,15 @@
-const mongoose=require('mongoose')
-const Schema=mongoose.Schema
+const mongoose = require('mongoose')
+const { paiseField } = require('../../utils/money')
 
-const paymentSchema=new Schema({
-    orderId:{
-        type:Schema.Types.ObjectId,
-        ref:'order'
+const paymentSchema = new mongoose.Schema(
+    {
+        orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true, index: true },
+        status: { type: String },
+        amount: paiseField({ required: true }),
+        type: { type: String, required: true },
+        transactionCode: { type: String, required: true },
     },
-    status:{
-        type:String,
-        
-    },
-    amount:{
-        type:String,
-        required:true
+    { timestamps: true }
+)
 
-    },
-    type:{
-        type:String,
-        required:true
-    },
-    transcationCode:{
-        type:String,
-        required:true
-    }
-
-})
-
-module.exports=mongoose.model('payment',paymentSchema)
+module.exports = mongoose.model('Payment', paymentSchema)

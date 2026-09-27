@@ -1,44 +1,22 @@
 const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const { paiseField } = require('../../utils/money')
 
-const productSchema = new Schema({
-  user:{
-    type:Schema.Types.ObjectId,
-    ref:'user'
-  },
-  productName: {
-    type: String,
-    // required: true
-  },
-  categoryId: {
-    type: Schema.Types.ObjectId,
-    ref: 'category'
-  },
-  brandId: {
-    type: Schema.Types.ObjectId,
-    ref: '/brand'
-  },
-  basePrice: {
-    type: String,
-    // required: true
-  },
-  description: {
-    type: String
-  }, 
-file:{
-  name: {
-    type: String,
-},
-size:{
-    type: Number,
-},
-url:{
-    type: String,
-},
-type:{
-    type: String,
-}
-}
-})
+const productSchema = new mongoose.Schema(
+    {
+        productName: { type: String, required: true, trim: true },
+        description: { type: String, trim: true },
+        price: paiseField({ required: true }),
+        categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true, index: true },
+        brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', index: true },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        file: {
+            name: String,
+            size: Number,
+            url: String,
+            type: { type: String },
+        },
+    },
+    { timestamps: true }
+)
 
-module.exports = mongoose.model('product', productSchema)
+module.exports = mongoose.model('Product', productSchema)

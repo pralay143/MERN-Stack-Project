@@ -1,21 +1,13 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
 
-const fileUploadSchema = new Schema({
-    name: {
-        type: String,
-        required: true
+const fileUploadSchema = new mongoose.Schema(
+    {
+        name: { type: String, required: true },
+        size: Number,
+        url: String,
+        type: { type: String },
     },
-    size:{
-        type: Number,
-    },
-    url:{
-        type: String,
-    },
-    type:{
-        type: String,
-    }
-},{
-    timestamps: true
-})
-module.exports = mongoose.model('FileUpload', fileUploadSchema);
+    { timestamps: true }
+)
+
+module.exports = mongoose.model('FileUpload', fileUploadSchema)

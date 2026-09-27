@@ -1,28 +1,16 @@
-const mongoose=require('mongoose')
-const Schema=mongoose.Schema
+const mongoose = require('mongoose')
+const { paiseField } = require('../../utils/money')
 
-const order_detailsSchema=new Schema({
-    orderId:{
-        type:Schema.Types.ObjectId,
-        ref:'order'
+// One line of an order.
+const orderDetailSchema = new mongoose.Schema(
+    {
+        orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true, index: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        vendorProductId: { type: mongoose.Schema.Types.ObjectId, ref: 'VendorProduct' },
+        quantity: { type: Number, required: true, min: 1 },
+        price: paiseField({ required: true }),
     },
-    userId:{
-        type:Schema.Types.ObjectId,
-         ref:'user'
-    },
-    qyt:{
-        type:String,
-        required:true
+    { timestamps: true }
+)
 
-    },
-    price:{
-        type:String,
-        required:true
-    },
-    vendor_productId:{
-        type:Schema.Types.ObjectId,
-        ref:'vendor_product'
-    }
-})
-
-module.exports=mongoose.model('order_details',order_detailsSchema)
+module.exports = mongoose.model('OrderDetail', orderDetailSchema)

@@ -8,6 +8,8 @@ let mongo
 async function connect() {
     mongo = await MongoMemoryServer.create()
     await mongoose.connect(mongo.getUri())
+    // Wait for unique indexes so duplicate-key checks behave like production.
+    await Promise.all(mongoose.modelNames().map((name) => mongoose.model(name).init()))
 }
 
 async function clear() {

@@ -1,23 +1,12 @@
-const mongoose=require('mongoose')
-const Schema=mongoose.Schema
+const mongoose = require('mongoose')
 
-const vendor_product_imagesSchema=new Schema({
-     vendor_productId:{
-        type:Schema.Types.ObjectId,
-        ref:'vendor_product'
-     },
-     vendorId:{
-        type:Schema.Types.ObjectId,
-        ref:'user'
-     },
-     imageUrl:{
-        type:String,
-        required:true
-     }
+const vendorProductImageSchema = new mongoose.Schema(
+    {
+        vendorProductId: { type: mongoose.Schema.Types.ObjectId, ref: 'VendorProduct', index: true },
+        vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
+        imageUrl: { type: String, required: true },
+    },
+    { timestamps: true }
+)
 
-
-})
-
-module.exports=mongoose.model('vendor_product_images',vendor_product_imagesSchema)
-
-
+module.exports = mongoose.model('VendorProductImage', vendorProductImageSchema)

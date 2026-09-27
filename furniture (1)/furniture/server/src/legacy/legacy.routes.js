@@ -6,6 +6,7 @@
 const express = require('express')
 const asyncHandler = require('../utils/asyncHandler')
 const { uploadFile, uploadProductImage } = require('../middleware/upload')
+const { toPaise, toRupees } = require('../utils/money')
 
 const user = require('../modules/user/user.controller')
 const role = require('../modules/role/role.controller')
@@ -19,6 +20,29 @@ const city = require('../modules/location/city.controller')
 const vendor = require('../modules/vendor/vendor.controller')
 const vendorProduct = require('../modules/vendorProduct/vendorProduct.controller')
 const upload = require('../modules/upload/upload.controller')
+
+// Renames request body fields from the old client's names to the current
+// schema's names, e.g. renameBody({ user: 'userId' }).
+const renameBody = (mapping) => (req, res, next) => {
+    for (const [oldName, newName] of Object.entries(mapping)) {
+        if (req.body[oldName] !== undefined && req.body[newName] === undefined) {
+            req.body[newName] = req.body[oldName]
+        }
+        delete req.body[oldName]
+    }
+    next()
+}
+
+// The old client sends and displays basePrice in rupees; the API stores
+// price in paise.
+const basePriceToPaise = (req, res, next) => {
+    if (req.body.basePrice !== undefined && req.body.price === undefined) {
+        req.body.price = toPaise(req.body.basePrice)
+    }
+    delete req.body.basePrice
+    next()
+}
+const withBasePrice = (product) => ({ ...product.toObject(), basePrice: toRupees(product.price) })
 
 const router = express.Router()
 
@@ -43,14 +67,16 @@ router.get('/brand/brand', brand.list)
 router.post('/brand/brand', brand.create)
 router.delete('/brand/brand/:id', brand.remove)
 
-// The old client reads the product list from "products" instead of "data".
+// The old client reads the product list from "products" instead of "data",
+// with prices in rupees.
 router.get(
     '/product/product',
     asyncHandler(async (req, res) => {
-        res.json({ message: 'Products found', products: await productService.list() })
+        const products = await productService.list()
+        res.json({ message: 'Products found', products: products.map(withBasePrice) })
     })
 )
-router.post('/product/product', uploadProductImage, product.create)
+router.post('/product/product', uploadProductImage, basePriceToPaise, product.create)
 router.delete('/product/product/:id', product.remove)
 
 router.get('/state/state', state.list)
@@ -59,12 +85,16 @@ router.get('/city/city', city.list)
 router.post('/city/city', city.create)
 
 router.get('/vendor/vendor', vendor.list)
-router.post('/vendor/vendor', vendor.create)
+router.post(
+    '/vendor/vendor',
+    renameBody({ user: 'userId', state: 'stateId', city: 'cityId', feedbackemail: 'feedbackEmail' }),
+    vendor.create
+)
 router.get('/vendor/vendor/:id', vendor.getById)
 router.delete('/vendor/vendor/:id', vendor.remove)
 
 router.get('/vproduct/get', vendorProduct.list)
-router.post('/vproduct/add', vendorProduct.create)
+router.post('/vproduct/add', renameBody({ qty: 'quantity' }), vendorProduct.create)
 
 router.post('/upload/upload', uploadFile, upload.create)
 

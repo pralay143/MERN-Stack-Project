@@ -1,31 +1,15 @@
-const mongoose=require('mongoose')
-const Schema=mongoose.Schema
+const mongoose = require('mongoose')
 
-const customer_addressSchema=new Schema({
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:'user'
+const addressSchema = new mongoose.Schema(
+    {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+        address: { type: String, required: true, trim: true },
+        stateId: { type: mongoose.Schema.Types.ObjectId, ref: 'State' },
+        cityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City' },
+        pincode: { type: String, required: true, trim: true },
+        isDefault: { type: Boolean, default: false },
     },
-    address:{
-        type:String,
-        required:true
-    },
-    stateId:{
-        type:Schema.Types.ObjectId,
-        ref:'state'
-    },
-    cityId:{
-        type:Schema.Types.ObjectId,
-         ref:'city'
-    },
-    pincode:{
-        type:String,
-        required:true
-    },
-    isDefualt:{
-        type:Boolean,
-        required:true
-    },
-})
+    { timestamps: true }
+)
 
-module.exports=mongoose.model('customer_address',customer_addressSchema)
+module.exports = mongoose.model('Address', addressSchema)
