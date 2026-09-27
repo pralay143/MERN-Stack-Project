@@ -1,1 +1,51 @@
-/* Styles arrive with Tailwind in the next commit. */
+@import 'tailwindcss';
+
+/*
+  Design tokens for the warm minimal look. Use these through Tailwind
+  classes (bg-cream, text-ink, bg-walnut, font-display, ...), never raw hex
+  values in components.
+*/
+@theme {
+  /* Surfaces */
+  --color-cream: #faf6f0; /* page background */
+  --color-sand: #f1e8da; /* subtle panels, hover backgrounds */
+  --color-line: #e4d8c6; /* borders and dividers */
+  --color-surface: #ffffff; /* cards, inputs */
+
+  /* Text */
+  --color-ink: #2b2119; /* body text and headings */
+  --color-muted: #6f6254; /* secondary text */
+
+  /* Brand */
+  --color-walnut: #6b4a33; /* primary actions */
+  --color-walnut-dark: #523826; /* primary hover */
+  --color-walnut-light: #efe4d8; /* primary tint */
+  --color-terracotta: #b5603a; /* accents, badges */
+
+  /* Feedback */
+  --color-success: #3f6b4a;
+  --color-danger: #b3261e;
+  --color-danger-light: #fbeae8;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+  --radius-card: 1rem;
+}
+
+@layer base {
+  html {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-medium tracking-tight;
+  }
+
+  /* One consistent, clearly visible keyboard focus style. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-walnut;
+  }
+}
