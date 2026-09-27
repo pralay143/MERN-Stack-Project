@@ -34,23 +34,29 @@ app.use('/vendor',vendor_detailRoutes)
 app.use('/vproduct',vendor_productRoutes)
 
 
-const MONGO_URI=process.env.MONGO_URI
-if(!MONGO_URI){
-    console.log('MONGO_URI is not set. Copy .env.example to .env and fill it in.')
-    process.exit(1)
-}
+module.exports = app
 
-mongoose.connect(MONGO_URI,{},  (err)=>{
-    if(err){
-      console.log("error in database connection........", err.message)
-    }else
-    {
-       console.log("db connected successfully.....")
-
+// Connect and listen only when run directly (node app.js), not when
+// imported by the tests.
+if (require.main === module) {
+    const MONGO_URI=process.env.MONGO_URI
+    if(!MONGO_URI){
+        console.log('MONGO_URI is not set. Copy .env.example to .env and fill it in.')
+        process.exit(1)
     }
-})
 
-const PORT=process.env.PORT || 3550
-app.listen(PORT,()=>{
-    console.log("server is running at port number ",PORT)
-})
+    mongoose.connect(MONGO_URI,{},  (err)=>{
+        if(err){
+          console.log("error in database connection........", err.message)
+        }else
+        {
+           console.log("db connected successfully.....")
+
+        }
+    })
+
+    const PORT=process.env.PORT || 3550
+    app.listen(PORT,()=>{
+        console.log("server is running at port number ",PORT)
+    })
+}
