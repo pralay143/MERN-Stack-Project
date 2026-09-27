@@ -1,5 +1,4 @@
 const asyncHandler = require('../../utils/asyncHandler')
-const ApiError = require('../../utils/ApiError')
 const userService = require('./user.service')
 
 const create = asyncHandler(async (req, res) => {
@@ -23,15 +22,4 @@ const remove = asyncHandler(async (req, res) => {
     res.json({ message: 'User removed', data: await userService.remove(req.params.id) })
 })
 
-const login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body
-    if (!email || !password) throw ApiError.badRequest('Email and password are required')
-
-    const user = await userService.authenticate(email, password)
-    if (!user) throw ApiError.unauthorized('Invalid email or password')
-
-    // An array, as the legacy client expects (it reads data[0]).
-    res.json({ message: 'Login successful', data: [user] })
-})
-
-module.exports = { create, list, getById, update, remove, login }
+module.exports = { create, list, getById, update, remove }

@@ -7,8 +7,11 @@ const express = require('express')
 const asyncHandler = require('../utils/asyncHandler')
 const { uploadFile, uploadProductImage } = require('../middleware/upload')
 const { toPaise, toRupees } = require('../utils/money')
+const { setAuthCookie } = require('../utils/session')
 
 const user = require('../modules/user/user.controller')
+const auth = require('../modules/auth/auth.controller')
+const authService = require('../modules/auth/auth.service')
 const role = require('../modules/role/role.controller')
 const category = require('../modules/category/category.controller')
 const subcategory = require('../modules/subcategory/subcategory.controller')
@@ -47,8 +50,16 @@ const withBasePrice = (product) => ({ ...product.toObject(), basePrice: toRupees
 const router = express.Router()
 
 router.get('/user/user', user.list)
-router.post('/user/user', user.create)
-router.post('/user/user/login', user.login)
+router.post('/user/user', auth.register)
+// Same as /api/v1/auth/login, but the old client reads the user from data[0].
+router.post(
+    '/user/user/login',
+    asyncHandler(async (req, res) => {
+        const loggedIn = await authService.login(req.body.email, req.body.password)
+        setAuthCookie(res, loggedIn)
+        res.json({ message: 'Login successful', data: [loggedIn] })
+    })
+)
 router.get('/user/user/:id', user.getById)
 router.delete('/user/user/:id', user.remove)
 

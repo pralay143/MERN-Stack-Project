@@ -2,7 +2,7 @@ const express = require('express')
 
 const router = express.Router()
 
-router.use('/auth', require('../modules/user/auth.routes'))
+router.use('/auth', require('../modules/auth/auth.routes'))
 router.use('/users', require('../modules/user/user.routes'))
 router.use('/roles', require('../modules/role/role.routes'))
 router.use('/categories', require('../modules/category/category.routes'))

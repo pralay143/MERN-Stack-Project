@@ -49,7 +49,7 @@ describe('auth', () => {
 
         const login = await api.post(v1('/auth/login')).send({ email: 'asha@example.com', password: 'Secret@123' })
         expect(login.status).toBe(200)
-        expect(login.body.data[0].role.name).toBe('Customer')
+        expect(login.body.data.role.name).toBe('Customer')
     })
 })
 
