@@ -7,6 +7,9 @@ module.exports = {
     mongoUri: process.env.MONGO_URI,
     port: process.env.PORT || 3550,
 
+    // bcrypt cost factor. 12 is a sensible production default; tests lower it.
+    bcryptRounds: Number(process.env.BCRYPT_ROUNDS) || 12,
+
     // General file uploads (POST /upload/upload).
     uploadDir: path.join(SERVER_ROOT, 'uploads'),
 

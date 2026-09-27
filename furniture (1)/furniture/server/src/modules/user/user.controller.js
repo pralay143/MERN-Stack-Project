@@ -27,10 +27,11 @@ const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body
     if (!email || !password) throw ApiError.badRequest('Email and password are required')
 
-    const users = await userService.findByCredentials(email, password)
-    if (users.length === 0) throw ApiError.unauthorized('Invalid email or password')
+    const user = await userService.authenticate(email, password)
+    if (!user) throw ApiError.unauthorized('Invalid email or password')
 
-    res.json({ message: 'Login successful', data: users })
+    // An array, as the legacy client expects (it reads data[0]).
+    res.json({ message: 'Login successful', data: [user] })
 })
 
 module.exports = { create, list, getById, update, remove, login }

@@ -30,7 +30,7 @@ async function seed({ reset = false, adminEmail, adminPassword } = {}) {
     if (!(await User.exists({ email }))) {
         const adminRole = await Role.findOne({ name: 'Admin' })
         const password = adminPassword || crypto.randomBytes(9).toString('base64url')
-        // Stored as-is for now; password hashing arrives with authentication.
+        // The User model hashes the password before saving.
         await User.create({ name: 'Admin', email, password, role: adminRole._id })
         summary.adminCreated = true
         if (!adminPassword) summary.generatedPassword = password

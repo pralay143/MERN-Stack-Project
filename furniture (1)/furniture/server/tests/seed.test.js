@@ -30,7 +30,10 @@ test('running again adds nothing and keeps existing records', async () => {
     expect(summary.adminCreated).toBe(false)
     expect(await Role.countDocuments()).toBe(3)
     expect(await Category.countDocuments()).toBe(9)
-    expect((await User.findOne({ email: 'admin@efurniture.local' })).password).toBe('pw')
+    // Still the original password, stored as a bcrypt hash.
+    const admin = await User.findOne({ email: 'admin@efurniture.local' })
+    expect(admin.password).toMatch(/^\$2b\$/)
+    expect(await admin.comparePassword('pw')).toBe(true)
 })
 
 test('generates an admin password when none is given', async () => {
