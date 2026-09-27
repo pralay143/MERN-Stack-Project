@@ -35,10 +35,12 @@ describe('references', () => {
 })
 
 describe('users', () => {
-    const user = { name: 'Meera', email: 'Meera@Example.com ', password: 'x' }
+    const user = { name: 'Meera', email: 'Meera@Example.com ', password: 'Secret@123', role: '646afa59a201bba44448c945' }
 
     test('email is required ("require" typo fixed) and stored lowercased', async () => {
-        expect((await admin.post(v1('/users')).send({ name: 'No email', password: 'x' })).status).toBe(400)
+        const noEmail = await admin.post(v1('/users')).send({ name: 'No email', password: 'Secret@123', role: '646afa59a201bba44448c945' })
+        expect(noEmail.status).toBe(400)
+        expect(noEmail.body.errors.email).toBe('Email is required')
 
         const res = await admin.post(v1('/users')).send(user)
         expect(res.status).toBe(201)
@@ -98,7 +100,7 @@ describe('legacy client field mapping', () => {
     test('vendor form fields user/state/city are saved as userId/stateId/cityId', async () => {
         const state = (await admin.post(v1('/states')).send({ stateName: 'Punjab' })).body.data._id
         const city = (await admin.post(v1('/cities')).send({ cityName: 'Amritsar', state })).body.data._id
-        const user = (await admin.post(v1('/users')).send({ name: 'V', email: 'v@example.com', password: 'x' })).body.data._id
+        const user = (await admin.post(v1('/users')).send({ name: 'V', email: 'v@example.com', password: 'Secret@123', role: '646afa59a201bba44448c945' })).body.data._id
 
         const res = await admin.post('/vendor/vendor').send({ vendorName: 'Punjab Woods', user, state, city })
         expect(res.status).toBe(201)

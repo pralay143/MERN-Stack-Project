@@ -1,5 +1,6 @@
 // Rules checked inside controllers: users act on their own account, vendors
 // on their own products and profile; admins on anything.
+const mongoose = require('mongoose')
 const request = require('supertest')
 const app = require('../src/app')
 const db = require('./helpers/db')
@@ -26,6 +27,7 @@ afterAll(async () => {
 })
 
 const idOf = (agent) => agent.user._id.toString()
+const anyId = () => new mongoose.Types.ObjectId().toString()
 
 describe('users', () => {
     test('can read their own account but not someone else’s', async () => {
@@ -114,14 +116,14 @@ describe('vendor profiles', () => {
 describe('vendor products', () => {
     test('need the vendor’s own profile', async () => {
         const noProfile = await loginAs(app, 'Vendor', 'no-profile@example.com')
-        const res = await noProfile.post(v1('/vendor-products')).send({ quantity: 1 })
+        const res = await noProfile.post(v1('/vendor-products')).send({ productId: anyId(), quantity: 1 })
         expect(res.status).toBe(400)
         expect(res.body.message).toMatch(/vendor profile/)
     })
 
     test('are always added to the vendor’s own profile', async () => {
         const bProfile = (await admin.get(v1('/vendors'))).body.data.find((v) => v.vendorName === 'B Woods')
-        const res = await vendorA.post(v1('/vendor-products')).send({ quantity: 3, vendorId: bProfile._id })
+        const res = await vendorA.post(v1('/vendor-products')).send({ productId: anyId(), quantity: 3, vendorId: bProfile._id })
         expect(res.status).toBe(201)
         const aProfile = (await admin.get(v1('/vendors'))).body.data.find((v) => v.vendorName === 'A Furnishings')
         expect(res.body.data.vendorId).toBe(aProfile._id)

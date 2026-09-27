@@ -11,6 +11,7 @@ const express = require('express')
 const asyncHandler = require('../utils/asyncHandler')
 const { requireAuth, adminOnly, vendorOrAdmin } = require('../middleware/auth')
 const { uploadFile, uploadProductImage } = require('../middleware/upload')
+const validate = require('../middleware/validate')
 const { toPaise, toRupees } = require('../utils/money')
 const { setAuthCookie } = require('../utils/session')
 
@@ -28,6 +29,18 @@ const city = require('../modules/location/city.controller')
 const vendor = require('../modules/vendor/vendor.controller')
 const vendorProduct = require('../modules/vendorProduct/vendorProduct.controller')
 const upload = require('../modules/upload/upload.controller')
+
+const schemas = {
+    auth: require('../modules/auth/auth.validation'),
+    role: require('../modules/role/role.validation'),
+    category: require('../modules/category/category.validation'),
+    subcategory: require('../modules/subcategory/subcategory.validation'),
+    brand: require('../modules/brand/brand.validation'),
+    product: require('../modules/product/product.validation'),
+    location: require('../modules/location/location.validation'),
+    vendor: require('../modules/vendor/vendor.validation'),
+    vendorProduct: require('../modules/vendorProduct/vendorProduct.validation'),
+}
 
 // Renames request body fields from the old client's names to the current
 // schema's names, e.g. renameBody({ user: 'userId' }).
@@ -55,10 +68,11 @@ const withBasePrice = (product) => ({ ...product.toObject(), basePrice: toRupees
 const router = express.Router()
 
 // Public: sign-up, login and the catalogue lists.
-router.post('/user/user', auth.register)
+router.post('/user/user', validate(schemas.auth.register), auth.register)
 // Same as /api/v1/auth/login, but the old client reads the user from data[0].
 router.post(
     '/user/user/login',
+    validate(schemas.auth.login),
     asyncHandler(async (req, res) => {
         const loggedIn = await authService.login(req.body.email, req.body.password)
         setAuthCookie(res, loggedIn)
@@ -86,31 +100,39 @@ router.get('/user/user', ...adminOnly, user.list)
 router.get('/user/user/:id', requireAuth, user.getById)
 router.delete('/user/user/:id', ...adminOnly, user.remove)
 router.get('/role/role', ...adminOnly, role.list)
-router.post('/role/role', ...adminOnly, role.create)
+router.post('/role/role', ...adminOnly, validate(schemas.role.create), role.create)
 
 // Catalogue management
-router.post('/category/category', ...adminOnly, category.create)
+router.post('/category/category', ...adminOnly, validate(schemas.category.create), category.create)
 router.delete('/category/category/:id', ...adminOnly, category.remove)
-router.post('/subcategory/subcategory', ...adminOnly, subcategory.create)
+router.post('/subcategory/subcategory', ...adminOnly, validate(schemas.subcategory.create), subcategory.create)
 router.delete('/subcategory/subcategory/:id', ...adminOnly, subcategory.remove)
-router.post('/brand/brand', ...adminOnly, brand.create)
+router.post('/brand/brand', ...adminOnly, validate(schemas.brand.create), brand.create)
 router.delete('/brand/brand/:id', ...adminOnly, brand.remove)
-router.post('/state/state', ...adminOnly, state.create)
-router.post('/city/city', ...adminOnly, city.create)
+router.post('/state/state', ...adminOnly, validate(schemas.location.createState), state.create)
+router.post('/city/city', ...adminOnly, validate(schemas.location.createCity), city.create)
 
 // Products and vendors
-router.post('/product/product', ...vendorOrAdmin, uploadProductImage, basePriceToPaise, product.create)
+router.post(
+    '/product/product',
+    ...vendorOrAdmin,
+    uploadProductImage,
+    basePriceToPaise,
+    validate(schemas.product.create),
+    product.create
+)
 router.delete('/product/product/:id', ...vendorOrAdmin, product.remove)
 router.get('/vendor/vendor', ...adminOnly, vendor.list)
 router.post(
     '/vendor/vendor',
     ...vendorOrAdmin,
     renameBody({ user: 'userId', state: 'stateId', city: 'cityId', feedbackemail: 'feedbackEmail' }),
+    validate(schemas.vendor.create),
     vendor.create
 )
 router.get('/vendor/vendor/:id', ...vendorOrAdmin, vendor.getById)
 router.delete('/vendor/vendor/:id', ...adminOnly, vendor.remove)
-router.post('/vproduct/add', ...vendorOrAdmin, renameBody({ qty: 'quantity' }), vendorProduct.create)
+router.post('/vproduct/add', ...vendorOrAdmin, renameBody({ qty: 'quantity' }), validate(schemas.vendorProduct.create), vendorProduct.create)
 router.post('/upload/upload', ...vendorOrAdmin, uploadFile, upload.create)
 
 module.exports = router

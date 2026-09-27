@@ -210,7 +210,7 @@ describe('vendors (/vendor/vendor)', () => {
 
 describe('other legacy routes', () => {
     test('POST /vproduct/add links a product to a vendor', async () => {
-        const res = await admin.post('/vproduct/add').send({ qty: 2 })
+        const res = await admin.post('/vproduct/add').send({ productId: '64b000000000000000000001', qty: 2 })
         expectSuccess(res)
     })
 

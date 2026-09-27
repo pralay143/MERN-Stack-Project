@@ -1,3 +1,4 @@
+const fs = require('fs')
 const mongoose = require('mongoose')
 const multer = require('multer')
 const ApiError = require('../utils/ApiError')
@@ -7,6 +8,9 @@ const ApiError = require('../utils/ApiError')
 // details never reach the client.
 // eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
+    // A request that fails after its upload was saved must not leave the file behind.
+    if (req.file?.path) fs.unlink(req.file.path, () => {})
+
     if (err instanceof ApiError) {
         return res.status(err.status).json({ message: err.message, ...(err.details && { errors: err.details }) })
     }

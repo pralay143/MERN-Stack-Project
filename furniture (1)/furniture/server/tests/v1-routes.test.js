@@ -1,5 +1,6 @@
 // REST API under /api/v1, exercised as an admin (who may do everything).
 // Permissions are covered by access.test.js and ownership.test.js.
+const mongoose = require('mongoose')
 const request = require('supertest')
 const app = require('../src/app')
 const db = require('./helpers/db')
@@ -60,7 +61,7 @@ describe('auth', () => {
 
 describe('CRUD resources', () => {
     test('users', () =>
-        crud('users', { name: 'Ravi', email: 'ravi@example.com', password: 'x', gender: 'MALE' }, { name: 'Ravi K' }, (u) =>
+        crud('users', { name: 'Ravi', email: 'ravi@example.com', password: 'Secret@123', gender: 'MALE', role: '646afa59a201bba44448c945' }, { name: 'Ravi K' }, (u) =>
             expect(u.name).toBe('Ravi K')
         ))
 
@@ -124,7 +125,7 @@ describe('list/create-only resources', () => {
     })
 
     test('vendor-products', async () => {
-        expect((await admin.post(v1('/vendor-products')).send({ qty: 4 })).status).toBe(201)
+        expect((await admin.post(v1('/vendor-products')).send({ productId: new mongoose.Types.ObjectId().toString(), quantity: 4 })).status).toBe(201)
         expect((await admin.get(v1('/vendor-products'))).body.data.length).toBeGreaterThan(0)
     })
 

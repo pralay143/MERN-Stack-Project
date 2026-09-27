@@ -62,7 +62,11 @@ test('login with wrong credentials returns 401', async () => {
 })
 
 test('adding a product without an image returns 400 instead of crashing', async () => {
-    const res = await admin.post('/product/product').field('productName', 'No image')
+    const res = await admin
+        .post('/product/product')
+        .field('productName', 'No image')
+        .field('basePrice', '100')
+        .field('categoryId', missingId())
     expect(res.status).toBe(400)
     expect(res.body.message).toMatch(/image is required/)
 })
