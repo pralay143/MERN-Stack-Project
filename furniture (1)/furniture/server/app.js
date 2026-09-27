@@ -39,7 +39,7 @@ app.use('/vproduct',vendor_productRoutes)
 
 mongoose.connect("mongodb://127.0.0.1:27017/database",{},  (err)=>{
     if(err){
-      console.log("error in database connection........")
+      console.log("error in database connection........", err.message)
     }else
     {
        console.log("db connected successfully.....")

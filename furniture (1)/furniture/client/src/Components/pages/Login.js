@@ -24,16 +24,21 @@ Login = () => {
         
         localStorage.setItem("_id", res.data.data[0]?._id)
         
-        if (res.data.data[0]?.role.name === "Customer") {
+        const roleName = res.data.data[0]?.role?.name
+
+        if (roleName === "Customer") {
 
           navigate("/Customerdashboard")
-        } 
-        else if (res.data.data[0]?.role.name === "Admin") {
+        }
+        else if (roleName === "Admin") {
           navigate("/Admindashboard")
         }
-        else if (res.data.data[0]?.role.name === "Vendor") {
+        else if (roleName === "Vendor") {
           navigate("/Vendordashboard")
-      }
+        }
+        else {
+          toast.error('🦄 No role assigned to this user!', { position: "top-right", theme: "colored" });
+        }
     }
 
     }).catch((err) => {

@@ -6,7 +6,8 @@ const addUser = (req, res) => {
 
     user.save((err, data) => {
         if (err) {
-            res.status(404).json({
+            console.log("error in adding User:", err.message)
+            res.status(500).json({
                 message: "error in adding User..."
             })
         } else {
