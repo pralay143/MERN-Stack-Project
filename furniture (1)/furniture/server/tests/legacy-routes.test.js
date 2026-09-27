@@ -2,7 +2,7 @@
 // They check only what the client reads from each response, so they keep
 // passing while the internals are rewritten.
 const request = require('supertest')
-const app = require('../app')
+const app = require('../src/app')
 const db = require('./helpers/db')
 const { PNG_1PX, TEST_IMAGE_NAME, removeTestUploads } = require('./helpers/files')
 
