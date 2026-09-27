@@ -49,7 +49,10 @@ test('saving an unrelated field does not re-hash the password', async () => {
 
 describe('passwords never appear in responses', () => {
     const { expectNoPassword } = require('./helpers/noPassword')
+    const { createRoles } = require('./helpers/auth')
     let userId
+
+    beforeAll(createRoles)
 
     test('register', async () => {
         const res = await api.post(v1('/auth/register')).send({ name: 'P', email: 'p@example.com', password: 'Secret@123' })

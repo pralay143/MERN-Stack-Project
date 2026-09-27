@@ -143,3 +143,30 @@ describe('requireRole', () => {
         expect((await request(mini).get('/no-auth-first')).status).toBe(401)
     })
 })
+
+describe('registration', () => {
+    const newUser = (email, extra = {}) => ({ name: 'New', email, password: PASSWORD, ...extra })
+
+    test('always creates a Customer, even when the body asks for Admin', async () => {
+        const adminRoleId = '646afa55a201bba44448c941'
+        const res = await api.post(v1('/auth/register')).send(newUser('sneaky@example.com', { role: adminRoleId }))
+        expect(res.status).toBe(201)
+        expect(res.body.data.role.name).toBe('Customer')
+        expect((await User.findOne({ email: 'sneaky@example.com' }).populate('role')).role.name).toBe('Customer')
+    })
+
+    test('the legacy register route ignores the role too', async () => {
+        const vendorRoleId = '646afa4fa201bba44448c943'
+        const res = await api.post('/user/user').send(newUser('legacy-vendor@example.com', { role: vendorRoleId }))
+        expect(res.status).toBe(201)
+        expect(res.body.data.role.name).toBe('Customer')
+    })
+
+    test('registering logs the new user in', async () => {
+        const agent = request.agent(app)
+        await agent.post(v1('/auth/register')).send(newUser('fresh@example.com'))
+        const me = await agent.get(v1('/auth/me'))
+        expect(me.status).toBe(200)
+        expect(me.body.data.email).toBe('fresh@example.com')
+    })
+})
