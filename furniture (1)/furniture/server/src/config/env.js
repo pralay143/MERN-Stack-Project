@@ -21,6 +21,21 @@ module.exports = {
     // different sites; that also forces the Secure flag.
     cookieSameSite: process.env.COOKIE_SAMESITE || 'lax',
 
+    // Browser origins allowed to call the API with credentials
+    // (comma-separated, e.g. https://efurniture.example.com).
+    corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:3000')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean),
+
+    // Max failed logins / registrations per IP in each window.
+    loginRateLimit: Number(process.env.LOGIN_RATE_LIMIT) || 10, // per 15 minutes
+    registerRateLimit: Number(process.env.REGISTER_RATE_LIMIT) || 10, // per hour
+
+    // Number of proxies in front of the app (e.g. 1 on Render), so req.ip
+    // is the real client for rate limiting. Unset when running directly.
+    trustProxy: process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) : false,
+
     // General file uploads (POST /upload/upload).
     uploadDir: path.join(SERVER_ROOT, 'uploads'),
 

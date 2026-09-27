@@ -1,5 +1,6 @@
 // Request body validation (Zod) and mass-assignment protection.
 const fs = require('fs')
+const path = require('path')
 const mongoose = require('mongoose')
 const request = require('supertest')
 const app = require('../src/app')
@@ -114,11 +115,11 @@ describe('mass assignment', () => {
 })
 
 test('a product rejected by validation leaves no uploaded file behind', async () => {
-    const count = () => (fs.existsSync(productImageDir) ? fs.readdirSync(productImageDir).length : 0)
-    const before = count()
-    const res = await vendor.post(v1('/products')).field('productName', 'Nothing else').attach('file', PNG_1PX, TEST_IMAGE_NAME)
+    // A unique name, because other test files upload in parallel.
+    const name = `jest-test-image-rejected-${Date.now()}.png`
+    const res = await vendor.post(v1('/products')).field('productName', 'Nothing else').attach('file', PNG_1PX, name)
     expect(res.status).toBe(400)
     // The error handler removes the file asynchronously.
     await new Promise((resolve) => setTimeout(resolve, 100))
-    expect(count()).toBe(before)
+    expect(fs.existsSync(path.join(productImageDir, name))).toBe(false)
 })
