@@ -22,8 +22,10 @@ const create = asyncHandler(async (req, res) => {
     res.status(201).json({ message: 'Product added', data: product })
 })
 
+// Filtered, sorted and paged (query validated by validateQuery).
 const list = asyncHandler(async (req, res) => {
-    res.json({ message: 'Products found', data: await productService.list() })
+    const { items, meta } = await productService.search(req.validQuery)
+    res.json({ message: 'Products found', data: items, meta })
 })
 
 const getById = asyncHandler(async (req, res) => {

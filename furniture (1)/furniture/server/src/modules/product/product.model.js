@@ -19,4 +19,8 @@ const productSchema = new mongoose.Schema(
     { timestamps: true }
 )
 
+// For the shop's sort orders.
+productSchema.index({ createdAt: -1 })
+productSchema.index({ price: 1 })
+
 module.exports = mongoose.model('Product', productSchema)
