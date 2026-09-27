@@ -3,9 +3,10 @@ const brandController = require('./brand.controller')
 
 const router = express.Router()
 
-router.get('/brand', brandController.list)
-router.post('/brand', brandController.create)
-router.put('/brand', brandController.update)
-router.delete('/brand/:id', brandController.remove)
+router.get('/', brandController.list)
+router.post('/', brandController.create)
+router.get('/:id', brandController.getById)
+router.patch('/:id', brandController.update)
+router.delete('/:id', brandController.remove)
 
 module.exports = router

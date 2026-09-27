@@ -3,7 +3,7 @@ const vendorService = require('./vendor.service')
 
 const create = asyncHandler(async (req, res) => {
     const doc = await vendorService.create(req.body)
-    res.status(200).json({ message: 'Vendor added', data: doc })
+    res.status(201).json({ message: 'Vendor added', data: doc })
 })
 
 const list = asyncHandler(async (req, res) => {

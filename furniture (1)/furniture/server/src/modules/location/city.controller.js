@@ -3,7 +3,7 @@ const cityService = require('./city.service')
 
 const create = asyncHandler(async (req, res) => {
     const doc = await cityService.create(req.body)
-    res.status(200).json({ message: 'City added', data: doc })
+    res.status(201).json({ message: 'City added', data: doc })
 })
 
 const list = asyncHandler(async (req, res) => {

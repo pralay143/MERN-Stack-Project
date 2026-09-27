@@ -15,12 +15,15 @@ const create = asyncHandler(async (req, res) => {
             type: req.file.mimetype,
         },
     })
-    res.status(200).json({ message: 'Product added', file: product })
+    res.status(201).json({ message: 'Product added', data: product })
 })
 
-// The legacy client reads the list from "products", not "data".
 const list = asyncHandler(async (req, res) => {
-    res.json({ message: 'Products found', products: await productService.list() })
+    res.json({ message: 'Products found', data: await productService.list() })
+})
+
+const getById = asyncHandler(async (req, res) => {
+    res.json({ message: 'Product found', data: await productService.getById(req.params.id) })
 })
 
 const update = asyncHandler(async (req, res) => {
@@ -31,4 +34,4 @@ const remove = asyncHandler(async (req, res) => {
     res.json({ message: 'Product removed', data: await productService.remove(req.params.id) })
 })
 
-module.exports = { create, list, update, remove }
+module.exports = { create, list, getById, update, remove }

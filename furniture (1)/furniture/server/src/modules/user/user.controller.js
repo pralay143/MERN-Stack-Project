@@ -4,7 +4,7 @@ const userService = require('./user.service')
 
 const create = asyncHandler(async (req, res) => {
     const user = await userService.create(req.body)
-    res.status(200).json({ message: 'User added', data: user })
+    res.status(201).json({ message: 'User added', data: user })
 })
 
 const list = asyncHandler(async (req, res) => {

@@ -3,7 +3,7 @@ const roleController = require('./role.controller')
 
 const router = express.Router()
 
-router.get('/role', roleController.list)
-router.post('/role', roleController.create)
+router.get('/', roleController.list)
+router.post('/', roleController.create)
 
 module.exports = router

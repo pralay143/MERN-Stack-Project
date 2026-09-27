@@ -4,9 +4,10 @@ const { uploadProductImage } = require('../../middleware/upload')
 
 const router = express.Router()
 
-router.post('/product', uploadProductImage, productController.create)
-router.get('/product', productController.list)
-router.put('/product', productController.update)
-router.delete('/product/:id', productController.remove)
+router.get('/', productController.list)
+router.post('/', uploadProductImage, productController.create)
+router.get('/:id', productController.getById)
+router.patch('/:id', productController.update)
+router.delete('/:id', productController.remove)
 
 module.exports = router

@@ -5,9 +5,11 @@ const create = (data) => Category.create(data)
 
 const list = () => Category.find()
 
+const getById = async (id) => ensureFound(await Category.findById(id), 'Category')
+
 const update = async (id, data) =>
     ensureFound(await Category.findByIdAndUpdate(id, data, { new: true, runValidators: true }), 'Category')
 
 const remove = async (id) => ensureFound(await Category.findByIdAndDelete(id), 'Category')
 
-module.exports = { create, list, update, remove }
+module.exports = { create, list, getById, update, remove }

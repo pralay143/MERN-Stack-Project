@@ -8,13 +8,13 @@ const uploadService = require('./upload.service')
 const create = asyncHandler(async (req, res) => {
     if (!req.file) throw ApiError.badRequest('No file selected (form field "file")')
 
-    await uploadService.create({
+    const record = await uploadService.create({
         name: req.file.originalname,
         size: req.file.size,
         url: path.join(uploadDir, req.file.filename),
         type: req.file.mimetype,
     })
-    res.status(200).json({ message: 'File uploaded', file: req.file.originalname })
+    res.status(201).json({ message: 'File uploaded', data: record })
 })
 
 module.exports = { create }

@@ -8,6 +8,12 @@ const { PNG_1PX, TEST_IMAGE_NAME, removeTestUploads } = require('./helpers/files
 
 const api = request(app)
 
+// axios (used by the client) treats any 2xx as success; creates return 201.
+const expectSuccess = (res) => {
+    expect(res.status).toBeGreaterThanOrEqual(200)
+    expect(res.status).toBeLessThan(300)
+}
+
 let refs // ids of reference data created in beforeAll
 
 async function createReferenceData() {
@@ -50,7 +56,7 @@ describe('users (/user/user)', () => {
 
     test('POST registers a user', async () => {
         const res = await api.post('/user/user').send(newUser())
-        expect(res.status).toBe(200)
+        expectSuccess(res)
         expect(res.body.data._id).toBeDefined()
         expect(res.body.data.email).toBe('test@example.com')
         userId = res.body.data._id
@@ -58,7 +64,7 @@ describe('users (/user/user)', () => {
 
     test('POST /login returns the user with a populated role', async () => {
         const res = await api.post('/user/user/login').send({ email: 'test@example.com', password: 'Secret@123' })
-        expect(res.status).toBe(200)
+        expectSuccess(res)
         expect(res.body.data[0]._id).toBe(userId)
         expect(res.body.data[0].role.name).toBe('Customer')
     })
@@ -142,7 +148,7 @@ describe('products (/product/product)', () => {
             .field('qty', '3')
             .field('description', 'Three-seater')
             .attach('file', PNG_1PX, TEST_IMAGE_NAME)
-        expect(res.status).toBe(200)
+        expectSuccess(res)
     })
 
     test('GET lists products under "products" with category, brand and price', async () => {
@@ -175,7 +181,7 @@ describe('vendors (/vendor/vendor)', () => {
             pincode: '380009',
             contactNum: '8888888888',
         })
-        expect(res.status).toBe(200)
+        expectSuccess(res)
         expect(res.body.data._id).toBeDefined()
         vendorId = res.body.data._id
     })
@@ -197,11 +203,11 @@ describe('vendors (/vendor/vendor)', () => {
 describe('other legacy routes', () => {
     test('POST /vproduct/add links a product to a vendor', async () => {
         const res = await api.post('/vproduct/add').send({ qty: 2 })
-        expect(res.status).toBe(200)
+        expectSuccess(res)
     })
 
     test('POST /upload/upload stores a file', async () => {
         const res = await api.post('/upload/upload').attach('file', PNG_1PX, TEST_IMAGE_NAME)
-        expect(res.status).toBe(200)
+        expectSuccess(res)
     })
 })

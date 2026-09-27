@@ -3,7 +3,7 @@ const stateController = require('./state.controller')
 
 const router = express.Router()
 
-router.post('/state', stateController.create)
-router.get('/state', stateController.list)
+router.get('/', stateController.list)
+router.post('/', stateController.create)
 
 module.exports = router

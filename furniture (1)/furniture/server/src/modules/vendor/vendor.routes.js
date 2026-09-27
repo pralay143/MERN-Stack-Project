@@ -3,10 +3,10 @@ const vendorController = require('./vendor.controller')
 
 const router = express.Router()
 
-router.post('/vendor', vendorController.create)
-router.get('/vendor', vendorController.list)
-router.put('/vendor', vendorController.update)
-router.get('/vendor/:id', vendorController.getById)
-router.delete('/vendor/:id', vendorController.remove)
+router.get('/', vendorController.list)
+router.post('/', vendorController.create)
+router.get('/:id', vendorController.getById)
+router.patch('/:id', vendorController.update)
+router.delete('/:id', vendorController.remove)
 
 module.exports = router

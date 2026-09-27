@@ -4,6 +4,6 @@ const { uploadFile } = require('../../middleware/upload')
 
 const router = express.Router()
 
-router.post('/Upload', uploadFile, uploadController.create)
+router.post('/', uploadFile, uploadController.create)
 
 module.exports = router

@@ -3,9 +3,10 @@ const subcategoryController = require('./subcategory.controller')
 
 const router = express.Router()
 
-router.get('/subcategory', subcategoryController.list)
-router.post('/subcategory', subcategoryController.create)
-router.put('/subcategory', subcategoryController.update)
-router.delete('/subcategory/:id', subcategoryController.remove)
+router.get('/', subcategoryController.list)
+router.post('/', subcategoryController.create)
+router.get('/:id', subcategoryController.getById)
+router.patch('/:id', subcategoryController.update)
+router.delete('/:id', subcategoryController.remove)
 
 module.exports = router
