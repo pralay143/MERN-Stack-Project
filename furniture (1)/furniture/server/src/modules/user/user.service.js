@@ -14,7 +14,9 @@ const remove = async (id) => ensureFound(await User.findByIdAndDelete(id), 'User
 
 // Returns the user when the email and password match, otherwise null.
 const authenticate = async (email, password) => {
-    const user = await User.findOne({ email: String(email).toLowerCase().trim() }).populate('role')
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() })
+        .select('+password')
+        .populate('role')
     if (!user || !(await user.comparePassword(password))) return null
     return user
 }

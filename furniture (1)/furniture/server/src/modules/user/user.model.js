@@ -6,12 +6,22 @@ const userSchema = new mongoose.Schema(
     {
         name: { type: String, required: true, trim: true },
         email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-        password: { type: String, required: true },
+        // Never returned by queries unless asked for with .select('+password').
+        password: { type: String, required: true, select: false },
         gender: { type: String, enum: ['MALE', 'FEMALE', 'OTHER'] },
         contactNum: { type: String, trim: true },
         role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        // Second safeguard: strip the password even if a query selected it.
+        toJSON: {
+            transform: (doc, ret) => {
+                delete ret.password
+                return ret
+            },
+        },
+    }
 )
 
 const hashPassword = (plain) => bcrypt.hash(plain, bcryptRounds)

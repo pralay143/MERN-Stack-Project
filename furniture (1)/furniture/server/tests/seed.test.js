@@ -31,7 +31,7 @@ test('running again adds nothing and keeps existing records', async () => {
     expect(await Role.countDocuments()).toBe(3)
     expect(await Category.countDocuments()).toBe(9)
     // Still the original password, stored as a bcrypt hash.
-    const admin = await User.findOne({ email: 'admin@efurniture.local' })
+    const admin = await User.findOne({ email: 'admin@efurniture.local' }).select('+password')
     expect(admin.password).toMatch(/^\$2b\$/)
     expect(await admin.comparePassword('pw')).toBe(true)
 })
