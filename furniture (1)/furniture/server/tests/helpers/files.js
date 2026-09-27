@@ -1,5 +1,5 @@
 const fs = require('fs')
-const path = require('path')
+const { uploadDir } = require('../../src/config/env')
 
 // Smallest valid PNG (1x1 transparent pixel).
 const PNG_1PX = Buffer.from(
@@ -9,20 +9,14 @@ const PNG_1PX = Buffer.from(
 
 const TEST_IMAGE_NAME = 'jest-test-image.png'
 
-// Folders the upload code has written to over time. Test uploads are
-// removed from all of them so test runs leave no files behind.
-const UPLOAD_DIRS = [
-    path.resolve(__dirname, '..', '..', 'uploads'),
-    path.resolve(__dirname, '..', '..', '..', 'client', 'public', 'uploads'),
-]
+// Files currently in this worker's temporary upload folder.
+const uploadedFiles = () => (fs.existsSync(uploadDir) ? fs.readdirSync(uploadDir) : [])
 
-function removeTestUploads(extraDirs = []) {
-    for (const dir of [...UPLOAD_DIRS, ...extraDirs]) {
-        if (!fs.existsSync(dir)) continue
-        for (const name of fs.readdirSync(dir)) {
-            if (name.includes('jest-test-image')) fs.rmSync(path.join(dir, name))
-        }
-    }
+// Empties this worker's temporary upload folder (tests/setup/env.js points
+// UPLOAD_DIR at a temp folder, never at server/uploads).
+function removeTestUploads() {
+    if (!uploadDir.includes('efurniture-test-uploads')) throw new Error(`Refusing to clean ${uploadDir}`)
+    fs.rmSync(uploadDir, { recursive: true, force: true })
 }
 
-module.exports = { PNG_1PX, TEST_IMAGE_NAME, removeTestUploads }
+module.exports = { PNG_1PX, TEST_IMAGE_NAME, uploadedFiles, removeTestUploads }
