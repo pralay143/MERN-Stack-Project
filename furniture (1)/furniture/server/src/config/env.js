@@ -36,10 +36,7 @@ module.exports = {
     // is the real client for rate limiting. Unset when running directly.
     trustProxy: process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) : false,
 
-    // General file uploads (POST /upload/upload).
-    uploadDir: path.join(SERVER_ROOT, 'uploads'),
-
-    // Product images are still written into the CRA client's public folder,
-    // because the current client displays them from /uploads/<name>.
-    productImageDir: path.resolve(SERVER_ROOT, '..', 'client', 'public', 'uploads'),
+    // Where uploaded images are stored; served at /uploads/<name>.
+    uploadDir: process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(SERVER_ROOT, 'uploads'),
+    maxUploadBytes: (Number(process.env.MAX_UPLOAD_MB) || 5) * 1024 * 1024,
 }

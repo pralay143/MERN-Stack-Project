@@ -36,6 +36,7 @@
     "testTimeout": 30000,
     "setupFiles": [
       "<rootDir>/tests/setup/env.js"
-    ]
+    ],
+    "globalTeardown": "<rootDir>/tests/setup/teardown.js"
   }
 }

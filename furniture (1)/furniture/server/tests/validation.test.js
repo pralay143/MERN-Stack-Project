@@ -1,13 +1,10 @@
 // Request body validation (Zod) and mass-assignment protection.
-const fs = require('fs')
-const path = require('path')
 const mongoose = require('mongoose')
 const request = require('supertest')
 const app = require('../src/app')
 const db = require('./helpers/db')
 const { loginAs, PASSWORD } = require('./helpers/auth')
-const { PNG_1PX, TEST_IMAGE_NAME, removeTestUploads } = require('./helpers/files')
-const { productImageDir } = require('../src/config/env')
+const { PNG_1PX, TEST_IMAGE_NAME, uploadedFiles, removeTestUploads } = require('./helpers/files')
 const User = require('../src/modules/user/user.model')
 const Category = require('../src/modules/category/category.model')
 
@@ -115,11 +112,10 @@ describe('mass assignment', () => {
 })
 
 test('a product rejected by validation leaves no uploaded file behind', async () => {
-    // A unique name, because other test files upload in parallel.
-    const name = `jest-test-image-rejected-${Date.now()}.png`
-    const res = await vendor.post(v1('/products')).field('productName', 'Nothing else').attach('file', PNG_1PX, name)
+    const before = uploadedFiles().length
+    const res = await vendor.post(v1('/products')).field('productName', 'Nothing else').attach('file', PNG_1PX, TEST_IMAGE_NAME)
     expect(res.status).toBe(400)
     // The error handler removes the file asynchronously.
     await new Promise((resolve) => setTimeout(resolve, 100))
-    expect(fs.existsSync(path.join(productImageDir, name))).toBe(false)
+    expect(uploadedFiles().length).toBe(before)
 })

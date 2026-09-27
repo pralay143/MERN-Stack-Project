@@ -4,7 +4,7 @@ const { hasRole } = require('../../middleware/auth')
 const { assertOwnerOrAdmin } = require('../../utils/ownership')
 const productService = require('./product.service')
 
-// Expects the multipart form parsed by the uploadProductImage middleware.
+// Expects the multipart form parsed by the uploadImage middleware.
 // The product belongs to whoever creates it.
 const create = asyncHandler(async (req, res) => {
     if (!req.file) throw ApiError.badRequest('Product image is required (form field "file")')

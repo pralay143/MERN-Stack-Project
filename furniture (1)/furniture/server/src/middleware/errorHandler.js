@@ -2,6 +2,7 @@ const fs = require('fs')
 const mongoose = require('mongoose')
 const multer = require('multer')
 const ApiError = require('../utils/ApiError')
+const { maxUploadBytes } = require('../config/env')
 
 // Converts any error into a JSON response with a sensible status code.
 // Unexpected errors are logged and reported as a generic 500, so internal
@@ -30,6 +31,9 @@ function errorHandler(err, req, res, next) {
     }
 
     if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({ message: `Images must be at most ${maxUploadBytes / 1024 / 1024} MB` })
+        }
         return res.status(400).json({ message: err.message })
     }
 

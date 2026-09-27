@@ -10,3 +10,8 @@ process.env.JWT_SECRET = 'test-only-secret-that-is-at-least-32-characters-long'
 // Effectively no rate limits, except in tests that build their own app.
 process.env.LOGIN_RATE_LIMIT = '100000'
 process.env.REGISTER_RATE_LIMIT = '100000'
+// Each Jest worker uploads into its own temporary folder, so tests never
+// write into server/uploads and parallel test files don't see each other's files.
+process.env.UPLOAD_DIR = path.join(os.tmpdir(), `efurniture-test-uploads-${process.env.JEST_WORKER_ID || 0}-${process.pid}`)
+// Small limit so the size check is cheap to test.
+process.env.MAX_UPLOAD_MB = '1'

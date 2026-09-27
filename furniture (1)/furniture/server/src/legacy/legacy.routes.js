@@ -10,7 +10,7 @@
 const express = require('express')
 const asyncHandler = require('../utils/asyncHandler')
 const { requireAuth, adminOnly, vendorOrAdmin } = require('../middleware/auth')
-const { uploadFile, uploadProductImage } = require('../middleware/upload')
+const { uploadImage } = require('../middleware/upload')
 const validate = require('../middleware/validate')
 const { toPaise, toRupees } = require('../utils/money')
 const { setAuthCookie } = require('../utils/session')
@@ -116,7 +116,7 @@ router.post('/city/city', ...adminOnly, validate(schemas.location.createCity), c
 router.post(
     '/product/product',
     ...vendorOrAdmin,
-    uploadProductImage,
+    ...uploadImage,
     basePriceToPaise,
     validate(schemas.product.create),
     product.create
@@ -133,6 +133,6 @@ router.post(
 router.get('/vendor/vendor/:id', ...vendorOrAdmin, vendor.getById)
 router.delete('/vendor/vendor/:id', ...adminOnly, vendor.remove)
 router.post('/vproduct/add', ...vendorOrAdmin, renameBody({ qty: 'quantity' }), validate(schemas.vendorProduct.create), vendorProduct.create)
-router.post('/upload/upload', ...vendorOrAdmin, uploadFile, upload.create)
+router.post('/upload/upload', ...vendorOrAdmin, ...uploadImage, upload.create)
 
 module.exports = router
