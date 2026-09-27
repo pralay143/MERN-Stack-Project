@@ -12,6 +12,8 @@ const stateRoutes = require('./modules/location/state.routes')
 const cityRoutes = require('./modules/location/city.routes')
 const vendorRoutes = require('./modules/vendor/vendor.routes')
 const vendorProductRoutes = require('./modules/vendorProduct/vendorProduct.routes')
+const notFound = require('./middleware/notFound')
+const errorHandler = require('./middleware/errorHandler')
 
 const app = express()
 app.use(cors())
@@ -28,5 +30,9 @@ app.use('/state', stateRoutes)
 app.use('/city', cityRoutes)
 app.use('/vendor', vendorRoutes)
 app.use('/vproduct', vendorProductRoutes)
+
+// Must come after all routes.
+app.use(notFound)
+app.use(errorHandler)
 
 module.exports = app

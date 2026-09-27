@@ -1,103 +1,25 @@
-const vendor_detailSchema=require('./vendor.model')
+const asyncHandler = require('../../utils/asyncHandler')
+const vendorService = require('./vendor.service')
 
+const create = asyncHandler(async (req, res) => {
+    const doc = await vendorService.create(req.body)
+    res.status(200).json({ message: 'Vendor added', data: doc })
+})
 
-const addDetail=(req,res)=>{
-    const vendor_detail = new vendor_detailSchema(req.body)
+const list = asyncHandler(async (req, res) => {
+    res.json({ message: 'Vendors found', data: await vendorService.list() })
+})
 
-     vendor_detail.save((err,data)=>{
-        if(err){
-            res.status(404).json({
-                message:"error in Adding VendorDetails"
-            })
-        }else{
-            res.status(200).json({
-                message:"VendorDetails Added successfully...",
-                data: data
-            })
-        }
-     })
-}
+const getById = asyncHandler(async (req, res) => {
+    res.json({ message: 'Vendor found', data: await vendorService.getById(req.params.id) })
+})
 
+const update = asyncHandler(async (req, res) => {
+    res.json({ message: 'Vendor updated', data: await vendorService.update(req.params.id, req.body) })
+})
 
-const getVendordetail=(req,res)=> {
+const remove = asyncHandler(async (req, res) => {
+    res.json({ message: 'Vendor removed', data: await vendorService.remove(req.params.id) })
+})
 
-        
-
-    vendor_detailSchema.find().populate('userId').populate('cityId').populate('stateId').exec((err,data)=>{
-   // vendor_detailSchema.find((err,data) => {
-        if (err) {
-            res.status(404).json({
-                message: "VendorDetails not found...."
-            })
-        } else {
-            res.status(200).json({
-                message: "VendorDetails found successfully....",
-                data:data
-            })
-        }
-    })
-}
-
-
-const updateData=(req,res)=>{
-
-    var id =req.params.id
-    vendor_detailSchema.findByIdAndUpdate(id,(err,data)=>{
-        if(err){
-            res.status(500).json({
-                message:"error in update VendorDetails ......."
-            })
-        }
-        else(
-            res.status(200).json({
-                message:"VendorDetails Update Successfully......",
-                data:data
-
-            })
-        )
-    })
-}
-const getVendorById = (req, res) => {
-
-    var id = req.params.id
-
-    vendor_detailSchema.findById(id, (err, data) => {
-        if (err) {
-            res.status(404).json({
-                message: "error in found VendorDetails..."
-            })
-        } else {
-            res.status(200).json({
-                message: "VendorDetails found successfully...",
-                data: data
-            })
- 
-        }
-    })
-}
-
-const deleteVendor = (req, res) => {
-    const id = req.params.id
-
-    vendor_detailSchema.findByIdAndRemove(id, (err, success) => {
-        if (err) {
-            res.status(404).json({
-                message: "error in removing User"
-            })
-        } else {
-            res.status(200).json({
-                message: "User remove successfully...",
-                data: success
-            })
-        }
-    })
-}
-
-
-module.exports={
-    addDetail,
-    getVendordetail,
-    updateData,
-    getVendorById,
-    deleteVendor
-}
+module.exports = { create, list, getById, update, remove }

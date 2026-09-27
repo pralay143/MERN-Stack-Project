@@ -1,11 +1,9 @@
-const express=require('express')
-const router=express.Router()
-const vendor_productController=require('./vendorProduct.controller')
+const express = require('express')
+const vendorProductController = require('./vendorProduct.controller')
 
+const router = express.Router()
 
-router.get('/get',vendor_productController.getVproduct)
-router.post('/add',vendor_productController.addVproduct)
+router.get('/get', vendorProductController.list)
+router.post('/add', vendorProductController.create)
 
-
-
-module.exports=router
+module.exports = router

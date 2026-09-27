@@ -1,99 +1,21 @@
-const subcategorySchema = require('./subcategory.model')
+const asyncHandler = require('../../utils/asyncHandler')
+const subcategoryService = require('./subcategory.service')
 
+const create = asyncHandler(async (req, res) => {
+    const doc = await subcategoryService.create(req.body)
+    res.status(200).json({ message: 'Subcategory added', data: doc })
+})
 
-const addSubcategory=(req,res)=>{
-    
-    const subcategory=new subcategorySchema(req.body)
-    
-    subcategory.save((err,data)=>{
-      if(err){
-        res.status(404).json({
-            message:"error in adding subcategory..."
-        })
-      }else{
-        res.status(200).json({
-            message:"subcategory added successfully...",
-            data:data
-        })
-      }
-    })
-}
+const list = asyncHandler(async (req, res) => {
+    res.json({ message: 'Subcategories found', data: await subcategoryService.list() })
+})
 
- const getSubcategory=(req,res)=>{
-    subcategorySchema.find().populate('categoryDetail').exec((err,data)=>{
-        if(err){
-            res.status(404).json({
-                message:"error in found"
-            })
-        }else{
-            res.status(200).json({
-                message:"subcategory found successfully....",
-                data:data
-            })
-        }
-    })
- }
+const update = asyncHandler(async (req, res) => {
+    res.json({ message: 'Subcategory updated', data: await subcategoryService.update(req.params.id, req.body) })
+})
 
+const remove = asyncHandler(async (req, res) => {
+    res.json({ message: 'Subcategory removed', data: await subcategoryService.remove(req.params.id) })
+})
 
-
-
-
-
-
-const updateSubcategory=(req,res)=>{
-    const id =req.params.id
-
-    subcategorySchema.findByIdAndUpdate(id,req.body,(err,success)=>{
-        if(err){
-            res.status(404).json({
-                message:"error in updating subcategory"
-            })
-        }else{
-            res.status(200).json({
-                message:"subcategory upadate successfully...",
-                data:success
-            })
-        }
-    })
-}
-
-const deleteSubcategory=(req,res)=>{
-    const id =req.params.id
-
-    subcategorySchema.findByIdAndRemove(id,req.body,(err,success)=>{
-        if(err){
-            res.status(404).json({
-                message:"error in removing subcategory"
-            })
-        }else{
-            res.status(200).json({
-                message:"subcategory remove successfully...",
-                data:success
-            })
-        }
-    })
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports={
-    getSubcategory,
-    addSubcategory,
-    updateSubcategory,
-    deleteSubcategory
-
-}
+module.exports = { create, list, update, remove }

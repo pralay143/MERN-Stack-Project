@@ -1,12 +1,9 @@
-const express=require('express')
-const router=express.Router()
+const express = require('express')
+const roleController = require('./role.controller')
 
-const roleController=require('./role.controller')
+const router = express.Router()
 
-router.get('/role',roleController.getRole)
-router.post('/role',roleController.addRole)
+router.get('/role', roleController.list)
+router.post('/role', roleController.create)
 
-
-
-
-module.exports=router;
+module.exports = router

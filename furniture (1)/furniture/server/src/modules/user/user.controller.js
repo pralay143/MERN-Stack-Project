@@ -1,156 +1,36 @@
-const userSchema = require('./user.model')
+const asyncHandler = require('../../utils/asyncHandler')
+const ApiError = require('../../utils/ApiError')
+const userService = require('./user.service')
 
-const addUser = (req, res) => {
+const create = asyncHandler(async (req, res) => {
+    const user = await userService.create(req.body)
+    res.status(200).json({ message: 'User added', data: user })
+})
 
-    const user = new userSchema(req.body)
+const list = asyncHandler(async (req, res) => {
+    res.json({ message: 'Users found', data: await userService.list() })
+})
 
-    user.save((err, data) => {
-        if (err) {
-            console.log("error in adding User:", err.message)
-            res.status(500).json({
-                message: "error in adding User..."
-            })
-        } else {
-            res.status(200).json({
-                message: "User added successfully...",
-                data: data
-            })
-        }
-    })
-}
+const getById = asyncHandler(async (req, res) => {
+    res.json({ message: 'User found', data: await userService.getById(req.params.id) })
+})
 
-const getUser = (req, res) => {
+const update = asyncHandler(async (req, res) => {
+    res.json({ message: 'User updated', data: await userService.update(req.params.id, req.body) })
+})
 
-    userSchema.find().populate('role').exec((err,users) => {
-        if (err) {
-            res.status(404).json({
-                message: "User not found...."
-            })
-        } else {
-            res.status(200).json({
-                message: "User found successfully....",
-                data:users
-            })
-        }
-    })
-}
+const remove = asyncHandler(async (req, res) => {
+    res.json({ message: 'User removed', data: await userService.remove(req.params.id) })
+})
 
-const getUserById = (req, res) => {
+const login = asyncHandler(async (req, res) => {
+    const { email, password } = req.body
+    if (!email || !password) throw ApiError.badRequest('Email and password are required')
 
-    var id = req.params.id
+    const users = await userService.findByCredentials(email, password)
+    if (users.length === 0) throw ApiError.unauthorized('Invalid email or password')
 
-    userSchema.findById(id,(err, data) => {
-        if (err) {
-            res.status(404).json({ 
-                message: "error in found User.."
-            })
-        } else {
-            res.status(200).json({
-                message: "User found successfully...",
-                data: data
-            })
- 
-        }
-    })
-}
+    res.json({ message: 'Login successful', data: users })
+})
 
-
-
-const updateUser = (req, res) => {
-    const id = req.params.id
-
-    userSchema.findByIdAndUpdate(id, (err, success) => {
-        if (err) {
-            res.status(404).json({
-                message: "error in updating User"
-            })
-        } else {
-            res.status(200).json({
-                message: "User upadate successfully...",
-                data: success
-            })
-        }
-    })
-}
-
-const deleteUser = (req, res) => {
-    const id = req.params.id
-
-    userSchema.findByIdAndRemove(id, (err, success) => {
-        if (err) {
-            res.status(404).json({
-                message: "error in removing User"
-            })
-        } else {
-            res.status(200).json({
-                message: "User remove successfully...",
-                data: success
-            })
-        }
-    })
-}
-
-
-const loginUser = (req,res)=>{
-
-
-    var email = req.body.email
-    var password = req.body.password  
-
-    if(email!=undefined && password!= undefined && email!= "" && password!=""){
-        userSchema.find({email:email,password:password}).populate('role').exec((err,data)=>{
-
-            if(err){
-                res.status(500).json({
-                    message:"error while fetching User"
-                })
-            }
-            else{
-                if(data!=undefined && data!=null && data.length>0){
-                    res.status(200).json({
-                        message:"user found",
-                        data:data
-                    })
-                }
-                else{
-                    res.status(404).json({
-                        message:"User not found"
-                    })
-                }
-            }
-        })
-    
-
-    }
-    else{
-        res.status(404).json({
-            message:"email and password both are required"
-        })
-    }
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = {
-    addUser,
-    getUser,
-    getUserById,
-    updateUser,
-    deleteUser,
-    loginUser
-}
+module.exports = { create, list, getById, update, remove, login }

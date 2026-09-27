@@ -1,40 +1,13 @@
-const stateSchema = require('./state.model')
+const asyncHandler = require('../../utils/asyncHandler')
+const stateService = require('./state.service')
 
-const addState=(req,res)=>{
-  const  state= new stateSchema(req.body)
+const create = asyncHandler(async (req, res) => {
+    const doc = await stateService.create(req.body)
+    res.status(200).json({ message: 'State added', data: doc })
+})
 
-  state.save((err,data)=>{
-    if(err){
-        res.status(404).json({
-            message:"error in adding State...."
-        })
-    }else{
-        res.status(200).json({
-            message:"State added successfully....",
-            data:data
-        })
-    }
-  })
-}
+const list = asyncHandler(async (req, res) => {
+    res.json({ message: 'States found', data: await stateService.list() })
+})
 
-
-const getstate=(req,res)=>{
-
-    stateSchema.find((err, data) => {
-        if (err) {
-            res.status(404).json({
-                message: "State not found...."
-            })
-        } else {
-            res.status(200).json({
-                message: "State found successfully....",
-                data: data
-            })
-        }
-    })
-}
-
-module.exports={
-    addState,
-    getstate
-}
+module.exports = { create, list }

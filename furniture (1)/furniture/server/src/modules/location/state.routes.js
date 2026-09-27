@@ -1,8 +1,9 @@
-const express=require('express')
-const router=express.Router()
+const express = require('express')
+const stateController = require('./state.controller')
 
-const stateController=require('./state.controller')
+const router = express.Router()
 
-router.post('/state',stateController.addState)
-router.get('/state',stateController.getstate)
-module.exports=router
+router.post('/state', stateController.create)
+router.get('/state', stateController.list)
+
+module.exports = router

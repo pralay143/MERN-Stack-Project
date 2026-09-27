@@ -1,98 +1,21 @@
-const categorySchema = require('./category.model')
+const asyncHandler = require('../../utils/asyncHandler')
+const categoryService = require('./category.service')
 
+const create = asyncHandler(async (req, res) => {
+    const doc = await categoryService.create(req.body)
+    res.status(200).json({ message: 'Category added', data: doc })
+})
 
-const addCategory=(req,res)=>{
-    
-    const category=new categorySchema(req.body)
-    
-    category.save((err,data)=>{
-      if(err){
-        res.status(404).json({
-            message:"error in adding Category..."
-        })
-      }else{
-        res.status(200).json({
-            message:"Category added successfully...",
-            data:data
-        })
-      }
-    })
-}
+const list = asyncHandler(async (req, res) => {
+    res.json({ message: 'Categories found', data: await categoryService.list() })
+})
 
-const getCategory=(req,res)=>{
+const update = asyncHandler(async (req, res) => {
+    res.json({ message: 'Category updated', data: await categoryService.update(req.params.id, req.body) })
+})
 
-    categorySchema.find((err, users) => {
-        if(err){
-            res.status(404).json({
-                message:"Category not found...."
-            })
-        }else{
-            res.status(200).json({
-                message:"Category found successfully....",
-               data:users
-            })
-        }
-    })
-}
+const remove = asyncHandler(async (req, res) => {
+    res.json({ message: 'Category removed', data: await categoryService.remove(req.params.id) })
+})
 
-
-
-
-
-const updateCategory=(req,res)=>{
-    const id =req.params.id
-
-    categorySchema.findByIdAndUpdate(id,req.body,(err,success)=>{
-        if(err){
-            res.status(404).json({
-                message:"error in updating Category"
-            })
-        }else{
-            res.status(200).json({
-                message:"Category upadate successfully...",
-                data:success
-            })
-        }
-    })
-}
-
-const deleteCategory=(req,res)=>{
-    const id =req.params.id
-
-    categorySchema.findByIdAndRemove(id,req.body,(err,success)=>{
-        if(err){
-            res.status(404).json({
-                message:"error in removing Category"
-            })
-        }else{
-            res.status(200).json({
-                message:"Category remove successfully...",
-                data:success
-            })
-        }
-    })
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports={
-    getCategory,
-    addCategory,
-    updateCategory,
-    deleteCategory
-
-}
+module.exports = { create, list, update, remove }
