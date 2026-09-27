@@ -1,10 +1,12 @@
 // CLI for the seed script.
 //   npm run seed         add missing roles, categories and the admin user
 //   npm run seed:reset   drop the database first, then seed
+//   npm run seed:demo    also add sample brands and products with images
 const mongoose = require('mongoose')
 const { mongoUri } = require('../config/env')
 const { connectDb } = require('../config/db')
 const { seed } = require('./seed')
+const { seedDemo } = require('./demo')
 
 async function main() {
     const reset = process.argv.includes('--reset')
@@ -36,6 +38,11 @@ async function main() {
         console.log('Set SEED_ADMIN_PASSWORD in .env to choose your own.')
     } else {
         console.log(`Created admin ${summary.adminEmail} with the password from SEED_ADMIN_PASSWORD.`)
+    }
+
+    if (process.argv.includes('--demo')) {
+        const demo = await seedDemo({ ownerEmail: summary.adminEmail })
+        console.log(`Demo data: ${demo.brands} brands, ${demo.products} new products.`)
     }
 
     await mongoose.disconnect()
