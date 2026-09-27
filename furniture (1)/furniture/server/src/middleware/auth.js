@@ -27,14 +27,21 @@ const requireAuth = asyncHandler(async (req, res, next) => {
 // Use after requireAuth.
 const requireRole = (...roles) => {
     const allowed = roles.map((r) => r.toLowerCase())
-    return (req, res, next) => {
+    const middleware = (req, res, next) => {
         if (!req.user) return next(ApiError.unauthorized('Please log in'))
         const role = req.user.role?.name?.toLowerCase()
         if (!allowed.includes(role)) return next(ApiError.forbidden())
         next()
     }
+    // Lets tests/access.test.js check every guarded route automatically.
+    middleware.allowedRoles = allowed
+    return middleware
 }
 
 const hasRole = (user, role) => user?.role?.name?.toLowerCase() === role.toLowerCase()
 
-module.exports = { requireAuth, requireRole, hasRole }
+// Ready-made guards for route definitions: router.post('/', ...adminOnly, handler)
+const adminOnly = [requireAuth, requireRole('admin')]
+const vendorOrAdmin = [requireAuth, requireRole('admin', 'vendor')]
+
+module.exports = { requireAuth, requireRole, hasRole, adminOnly, vendorOrAdmin }

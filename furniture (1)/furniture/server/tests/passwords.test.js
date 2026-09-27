@@ -49,10 +49,12 @@ test('saving an unrelated field does not re-hash the password', async () => {
 
 describe('passwords never appear in responses', () => {
     const { expectNoPassword } = require('./helpers/noPassword')
-    const { createRoles } = require('./helpers/auth')
-    let userId
+    const { loginAs } = require('./helpers/auth')
+    let userId, admin
 
-    beforeAll(createRoles)
+    beforeAll(async () => {
+        admin = await loginAs(app, 'Admin')
+    })
 
     test('register', async () => {
         const res = await api.post(v1('/auth/register')).send({ name: 'P', email: 'p@example.com', password: 'Secret@123' })
@@ -69,9 +71,9 @@ describe('passwords never appear in responses', () => {
 
     test('user list, get by id and update', async () => {
         for (const res of [
-            await api.get(v1('/users')),
-            await api.get(v1(`/users/${userId}`)),
-            await api.patch(v1(`/users/${userId}`)).send({ name: 'P2' }),
+            await admin.get(v1('/users')),
+            await admin.get(v1(`/users/${userId}`)),
+            await admin.patch(v1(`/users/${userId}`)).send({ name: 'P2' }),
         ]) {
             expect(res.status).toBe(200)
             expectNoPassword(res)
@@ -79,21 +81,21 @@ describe('passwords never appear in responses', () => {
     })
 
     test('vendor list with the user populated', async () => {
-        await api.post(v1('/vendors')).send({ vendorName: 'Shop', userId })
-        const res = await api.get(v1('/vendors'))
+        await admin.post(v1('/vendors')).send({ vendorName: 'Shop', userId })
+        const res = await admin.get(v1('/vendors'))
         expect(res.body.data[0].userId.email).toBe('p@example.com')
         expectNoPassword(res)
     })
 
     test('legacy user routes', async () => {
-        for (const res of [await api.get('/user/user'), await api.get(`/user/user/${userId}`)]) {
+        for (const res of [await admin.get('/user/user'), await admin.get(`/user/user/${userId}`)]) {
             expect(res.status).toBe(200)
             expectNoPassword(res)
         }
     })
 
     test('delete', async () => {
-        const res = await api.delete(v1(`/users/${userId}`))
+        const res = await admin.delete(v1(`/users/${userId}`))
         expect(res.status).toBe(200)
         expectNoPassword(res)
     })

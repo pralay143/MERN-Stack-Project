@@ -12,4 +12,7 @@ const update = async (id, data) =>
 
 const remove = async (id) => ensureFound(await Vendor.findByIdAndDelete(id), 'Vendor')
 
-module.exports = { create, list, getById, update, remove }
+// The vendor profile owned by a user, or null.
+const findByUser = (userId) => Vendor.findOne({ userId })
+
+module.exports = { create, list, getById, update, remove, findByUser }

@@ -1,9 +1,15 @@
 // Contract tests for the routes the current CRA client calls.
 // They check only what the client reads from each response, so they keep
 // passing while the internals are rewritten.
+//
+// Sign-up, login and the catalogue lists are public. Everything else now
+// needs a login cookie, which the old client never sends; here those routes
+// are called as an admin to show the aliases still work once a client does.
+// tests/access.test.js checks the 401/403 side.
 const request = require('supertest')
 const app = require('../src/app')
 const db = require('./helpers/db')
+const { loginAs, createRoles } = require('./helpers/auth')
 const { PNG_1PX, TEST_IMAGE_NAME, removeTestUploads } = require('./helpers/files')
 
 const api = request(app)
@@ -15,15 +21,16 @@ const expectSuccess = (res) => {
 }
 
 let refs // ids of reference data created in beforeAll
+let admin // logged-in agent
 
 async function createReferenceData() {
-    const role = await api.post('/role/role').send({ name: 'Customer' })
-    const category = await api.post('/category/category').send({ categoryName: 'Sofa', isActive: true })
-    const brand = await api.post('/brand/brand').send({ brandName: 'Oakwood', categoryId: category.body.data._id })
-    const state = await api.post('/state/state').send({ stateName: 'Gujarat' })
-    const city = await api.post('/city/city').send({ cityName: 'Ahmedabad', state: state.body.data._id })
+    const roleIds = await createRoles()
+    const category = await admin.post('/category/category').send({ categoryName: 'Sofa', isActive: true })
+    const brand = await admin.post('/brand/brand').send({ brandName: 'Oakwood', categoryId: category.body.data._id })
+    const state = await admin.post('/state/state').send({ stateName: 'Gujarat' })
+    const city = await admin.post('/city/city').send({ cityName: 'Ahmedabad', state: state.body.data._id })
     return {
-        roleId: role.body.data._id,
+        roleId: roleIds.Customer,
         categoryId: category.body.data._id,
         brandId: brand.body.data._id,
         stateId: state.body.data._id,
@@ -43,6 +50,7 @@ const newUser = (overrides = {}) => ({
 
 beforeAll(async () => {
     await db.connect()
+    admin = await loginAs(app, 'Admin')
     refs = await createReferenceData()
 })
 
@@ -80,7 +88,7 @@ describe('users (/user/user)', () => {
     })
 
     test('GET lists users with populated roles', async () => {
-        const res = await api.get('/user/user')
+        const res = await admin.get('/user/user')
         expect(res.status).toBe(200)
         const user = res.body.data.find((u) => u._id === userId)
         expect(user.name).toBe('Test User')
@@ -88,15 +96,15 @@ describe('users (/user/user)', () => {
     })
 
     test('GET /:id returns one user', async () => {
-        const res = await api.get(`/user/user/${userId}`)
+        const res = await admin.get(`/user/user/${userId}`)
         expect(res.status).toBe(200)
         expect(res.body.data.name).toBe('Test User')
     })
 
     test('DELETE /:id removes the user', async () => {
-        const res = await api.delete(`/user/user/${userId}`)
+        const res = await admin.delete(`/user/user/${userId}`)
         expect(res.status).toBe(200)
-        const list = await api.get('/user/user')
+        const list = await admin.get('/user/user')
         expect(list.body.data.some((u) => u._id === userId)).toBe(false)
     })
 })
@@ -129,7 +137,7 @@ describe('reference data lists', () => {
     })
 
     test('GET /role/role', async () => {
-        const res = await api.get('/role/role')
+        const res = await admin.get('/role/role')
         expect(res.status).toBe(200)
         expect(res.body.data.map((r) => r.name)).toContain('Customer')
     })
@@ -139,7 +147,7 @@ describe('products (/product/product)', () => {
     let productId
 
     test('POST adds a product with an image (multipart form)', async () => {
-        const res = await api
+        const res = await admin
             .post('/product/product')
             .field('productName', 'Chesterfield Sofa')
             .field('categoryId', refs.categoryId)
@@ -164,7 +172,7 @@ describe('products (/product/product)', () => {
     })
 
     test('DELETE /:id removes the product', async () => {
-        const res = await api.delete(`/product/product/${productId}`)
+        const res = await admin.delete(`/product/product/${productId}`)
         expect(res.status).toBe(200)
         const list = await api.get('/product/product')
         expect(list.body.products.some((p) => p._id === productId)).toBe(false)
@@ -175,7 +183,7 @@ describe('vendors (/vendor/vendor)', () => {
     let vendorId
 
     test('POST adds vendor details', async () => {
-        const res = await api.post('/vendor/vendor').send({
+        const res = await admin.post('/vendor/vendor').send({
             vendorName: 'Oakwood Interiors',
             address: '12 CG Road',
             pincode: '380009',
@@ -187,27 +195,27 @@ describe('vendors (/vendor/vendor)', () => {
     })
 
     test('GET lists vendors', async () => {
-        const res = await api.get('/vendor/vendor')
+        const res = await admin.get('/vendor/vendor')
         expect(res.status).toBe(200)
         expect(res.body.data.find((v) => v._id === vendorId).vendorName).toBe('Oakwood Interiors')
     })
 
     test('DELETE /:id removes the vendor', async () => {
-        const res = await api.delete(`/vendor/vendor/${vendorId}`)
+        const res = await admin.delete(`/vendor/vendor/${vendorId}`)
         expect(res.status).toBe(200)
-        const list = await api.get('/vendor/vendor')
+        const list = await admin.get('/vendor/vendor')
         expect(list.body.data.some((v) => v._id === vendorId)).toBe(false)
     })
 })
 
 describe('other legacy routes', () => {
     test('POST /vproduct/add links a product to a vendor', async () => {
-        const res = await api.post('/vproduct/add').send({ qty: 2 })
+        const res = await admin.post('/vproduct/add').send({ qty: 2 })
         expectSuccess(res)
     })
 
     test('POST /upload/upload stores a file', async () => {
-        const res = await api.post('/upload/upload').attach('file', PNG_1PX, TEST_IMAGE_NAME)
+        const res = await admin.post('/upload/upload').attach('file', PNG_1PX, TEST_IMAGE_NAME)
         expectSuccess(res)
     })
 })
