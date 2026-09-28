@@ -59,6 +59,19 @@ export interface ApiResponse<T> {
   data: T
 }
 
+/** Paging details sent with a list page. `pages` is at least 1. */
+export interface PageMeta {
+  page: number
+  limit: number
+  total: number
+  pages: number
+}
+
+/** A paged list: { message, data, meta }. */
+export interface PagedResponse<T> extends ApiResponse<T[]> {
+  meta: PageMeta
+}
+
 /** Every error response: { message, errors? } (errors maps field to text). */
 export interface ApiErrorBody {
   message: string

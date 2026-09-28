@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
     errorElement: <RouteErrorPage />,
     children: [
       { index: true, element: <Placeholder title="Home" /> },
-      { path: 'shop', element: <Placeholder title="Shop" /> },
+      { path: 'shop', lazy: () => import('@/pages/ShopPage').then((m) => ({ Component: m.ShopPage })) },
       { path: 'products/:id', element: <Placeholder title="Product" /> },
       { path: 'login', lazy: () => import('@/pages/LoginPage').then((m) => ({ Component: m.LoginPage })) },
       { path: 'register', lazy: () => import('@/pages/RegisterPage').then((m) => ({ Component: m.RegisterPage })) },
