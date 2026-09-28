@@ -19,6 +19,9 @@ export function Footer() {
           <Link to="/shop?sort=newest" className="text-muted hover:text-walnut">
             New arrivals
           </Link>
+          <Link to="/about" className="text-muted hover:text-walnut">
+            About us
+          </Link>
         </nav>
       </Container>
       <Container className="border-t border-line py-6 text-xs text-muted">

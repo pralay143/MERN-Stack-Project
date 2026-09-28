@@ -8,6 +8,7 @@ import { SearchBox } from './SearchBox'
 const navLinks = [
   { to: '/shop', label: 'Shop all', isActive: (path: string, sort: string | null) => path === '/shop' && sort !== 'newest' },
   { to: '/shop?sort=newest', label: 'New arrivals', isActive: (path: string, sort: string | null) => path === '/shop' && sort === 'newest' },
+  { to: '/about', label: 'About', isActive: (path: string) => path === '/about' },
 ]
 
 // NavLink ignores the query string, so active state is worked out here.
