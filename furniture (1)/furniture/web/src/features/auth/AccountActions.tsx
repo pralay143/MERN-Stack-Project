@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router'
 import { buttonClasses } from '@/components/ui/buttonClasses'
 import { Button } from '@/components/ui/Button'
-import { useCurrentUser, useLogout } from './hooks'
+import { hasRole, useCurrentUser, useLogout } from './hooks'
 
 /** Header links: log in / sign up, or the account link and log out. */
 export function AccountActions() {
@@ -27,6 +27,11 @@ export function AccountActions() {
 
   return (
     <>
+      {hasRole(user, 'Vendor', 'Admin') && (
+        <Link to="/dashboard" className={buttonClasses({ variant: 'ghost', size: 'sm' })}>
+          Dashboard
+        </Link>
+      )}
       <Link to="/account" className={buttonClasses({ variant: 'ghost', size: 'sm' })}>
         <span className="flex size-6 items-center justify-center rounded-full bg-walnut-light text-xs font-semibold text-walnut-dark">
           {user.name.charAt(0).toUpperCase()}

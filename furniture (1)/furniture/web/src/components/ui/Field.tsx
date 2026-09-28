@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes } from 'react'
+import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
 const controlClasses = (invalid: boolean) =>
@@ -60,6 +60,29 @@ export function TextField({ label, error, hint, id, className, ref, ...props }: 
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(fieldId, error, hint)}
         className={cn(controlClasses(Boolean(error)), 'h-11', className)}
+        {...props}
+      />
+    </FieldFrame>
+  )
+}
+
+type TextAreaFieldProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string
+  error?: string
+  hint?: ReactNode
+}
+
+export function TextAreaField({ label, error, hint, id, className, ref, ...props }: TextAreaFieldProps & { ref?: Ref<HTMLTextAreaElement> }) {
+  const autoId = useId()
+  const fieldId = id ?? autoId
+  return (
+    <FieldFrame id={fieldId} label={label} error={error} hint={hint}>
+      <textarea
+        id={fieldId}
+        ref={ref}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(fieldId, error, hint)}
+        className={cn(controlClasses(Boolean(error)), 'min-h-32 py-3', className)}
         {...props}
       />
     </FieldFrame>

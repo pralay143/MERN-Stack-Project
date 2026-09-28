@@ -5,12 +5,16 @@ import type { ShopFilters } from './filters'
 /** Products shown per shop page; divides evenly into 1–4 grid columns. */
 export const PAGE_SIZE = 12
 
+/** Shop filters, optionally narrowed to one seller's products (the dashboard). */
+export type ProductQuery = ShopFilters & { seller?: string }
+
 /** One page of products. Empty filters are left out of the request. */
-export async function fetchProducts(filters: ShopFilters): Promise<PagedResponse<Product>> {
+export async function fetchProducts(filters: ProductQuery): Promise<PagedResponse<Product>> {
   const params: Record<string, string | number> = { sort: filters.sort, page: filters.page, limit: PAGE_SIZE }
   if (filters.q) params.q = filters.q
   if (filters.category) params.category = filters.category
   if (filters.brand) params.brand = filters.brand
+  if (filters.seller) params.seller = filters.seller
   const { data } = await api.get<PagedResponse<Product>>('/products', { params })
   return data
 }
