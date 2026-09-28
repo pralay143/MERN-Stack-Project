@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
-import { Container } from '@/components/ui/misc'
+import { errorMessage } from '@/api/client'
+import { Button } from '@/components/ui/Button'
+import { Alert, Container, EmptyState } from '@/components/ui/misc'
 import { cn } from '@/lib/cn'
-import { parseFilters, withFilter, withPage, type FilterKey } from '@/features/products/filters'
+import { hasActiveFilters, parseFilters, withFilter, withoutFilters, withPage, type FilterKey } from '@/features/products/filters'
 import { useProducts } from '@/features/products/hooks'
 import { Pagination } from '@/features/products/Pagination'
 import { ProductCard } from '@/features/products/ProductCard'
+import { ProductGridSkeleton } from '@/features/products/ProductGridSkeleton'
 import { ShopToolbar } from '@/features/products/ShopToolbar'
 
 /** The catalogue: search, filter, sort and page, all driven by the URL. */
@@ -25,6 +28,8 @@ export function ShopPage() {
     [setParams],
   )
 
+  const clearFilters = () => setParams((prev) => withoutFilters(prev), { preventScrollReset: true })
+
   // A page past the end (e.g. an old link after products were removed) moves to the last page.
   useEffect(() => {
     if (meta && !products.isPlaceholderData && meta.total > 0 && filters.page > meta.pages) {
@@ -41,7 +46,40 @@ export function ShopPage() {
         <ShopToolbar filters={filters} onChange={setFilter} />
       </div>
 
-      {products.data && (
+      {products.isPending ? (
+        <div className="mt-8">
+          <ProductGridSkeleton />
+        </div>
+      ) : products.isError ? (
+        <div className="mt-8 flex flex-col items-start gap-4">
+          <Alert className="w-full">{errorMessage(products.error, 'We couldn’t load the products.')}</Alert>
+          <div className="flex gap-2">
+            <Button onClick={() => products.refetch()} loading={products.isFetching}>
+              Try again
+            </Button>
+            {hasActiveFilters(filters) && (
+              <Button variant="secondary" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : products.data.data.length === 0 && meta?.total === 0 ? (
+        <div className="mt-8">
+          <EmptyState
+            title={hasActiveFilters(filters) ? 'No products match your filters' : 'No products yet'}
+            action={
+              hasActiveFilters(filters) && (
+                <Button variant="secondary" onClick={clearFilters}>
+                  Clear filters
+                </Button>
+              )
+            }
+          >
+            {hasActiveFilters(filters) ? 'Try a different search, or widen the category or brand.' : 'New pieces are on their way. Check back soon.'}
+          </EmptyState>
+        </div>
+      ) : (
         <section
           aria-label="Products"
           aria-busy={products.isFetching}
