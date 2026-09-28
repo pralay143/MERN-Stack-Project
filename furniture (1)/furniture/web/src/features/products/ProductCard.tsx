@@ -3,7 +3,8 @@ import { assetUrl } from '@/api/client'
 import type { Product } from '@/api/types'
 import { formatPaise } from '@/lib/money'
 
-export function ProductCard({ product }: { product: Product }) {
+/** A product tile linking to its page. Use headingLevel="h3" inside a section headed by an h2. */
+export function ProductCard({ product, headingLevel: Heading = 'h2' }: { product: Product; headingLevel?: 'h2' | 'h3' }) {
   const image = assetUrl(product.file?.url)
   const maker = product.brandId?.brandName ?? product.categoryId?.categoryName
 
@@ -24,7 +25,7 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
         {maker && <p className="text-xs tracking-wide text-muted uppercase">{maker}</p>}
-        <h2 className="font-display text-lg leading-snug group-hover:text-walnut">{product.productName}</h2>
+        <Heading className="font-display text-lg leading-snug group-hover:text-walnut">{product.productName}</Heading>
         <p className="mt-auto pt-2 font-medium">{formatPaise(product.price)}</p>
       </div>
     </Link>

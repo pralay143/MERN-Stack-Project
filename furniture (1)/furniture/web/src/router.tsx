@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Placeholder title="Home" /> },
       { path: 'shop', lazy: () => import('@/pages/ShopPage').then((m) => ({ Component: m.ShopPage })) },
-      { path: 'products/:id', element: <Placeholder title="Product" /> },
+      { path: 'products/:id', lazy: () => import('@/pages/ProductPage').then((m) => ({ Component: m.ProductPage })) },
       { path: 'login', lazy: () => import('@/pages/LoginPage').then((m) => ({ Component: m.LoginPage })) },
       { path: 'register', lazy: () => import('@/pages/RegisterPage').then((m) => ({ Component: m.RegisterPage })) },
       {

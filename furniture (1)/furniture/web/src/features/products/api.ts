@@ -15,6 +15,11 @@ export async function fetchProducts(filters: ShopFilters): Promise<PagedResponse
   return data
 }
 
+export async function fetchProduct(id: string): Promise<Product> {
+  const { data } = await api.get<ApiResponse<Product>>(`/products/${id}`)
+  return data.data
+}
+
 export async function fetchCategories(): Promise<Category[]> {
   const { data } = await api.get<ApiResponse<Category[]>>('/categories')
   return data.data

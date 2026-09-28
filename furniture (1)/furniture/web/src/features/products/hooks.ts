@@ -1,10 +1,11 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { fetchBrands, fetchCategories, fetchProducts } from './api'
+import { fetchBrands, fetchCategories, fetchProduct, fetchProducts } from './api'
 import type { ShopFilters } from './filters'
 
 export const productKeys = {
   all: ['products'] as const,
   list: (filters: ShopFilters) => ['products', 'list', filters] as const,
+  detail: (id: string) => ['products', 'detail', id] as const,
 }
 
 /**
@@ -18,6 +19,10 @@ export function useProducts(filters: ShopFilters) {
     queryFn: () => fetchProducts(filters),
     placeholderData: keepPreviousData,
   })
+}
+
+export function useProduct(id: string) {
+  return useQuery({ queryKey: productKeys.detail(id), queryFn: () => fetchProduct(id) })
 }
 
 // Categories and brands rarely change; keep them for the whole visit.
