@@ -1,4 +1,5 @@
 // GET /api/v1/products: search, filters, sorting and paging.
+const mongoose = require('mongoose')
 const request = require('supertest')
 const app = require('../src/app')
 const db = require('./helpers/db')
@@ -12,6 +13,7 @@ const list = (query = {}) => api.get('/api/v1/products').query(query)
 const names = (res) => res.body.data.map((p) => p.productName)
 
 let sofas, beds, teak
+const sellerId = new mongoose.Types.ObjectId()
 
 beforeAll(async () => {
     await db.connect()
@@ -22,9 +24,9 @@ beforeAll(async () => {
     const day = (n) => new Date(Date.UTC(2026, 0, n))
     // Inserted directly so createdAt can be controlled for the "newest" sort.
     await Product.insertMany([
-        { productName: 'Chesterfield Sofa', description: 'Deep buttoned leather', price: 5500000, categoryId: sofas._id, brandId: teak._id, createdAt: day(1) },
+        { productName: 'Chesterfield Sofa', description: 'Deep buttoned leather', price: 5500000, categoryId: sofas._id, brandId: teak._id, user: sellerId, createdAt: day(1) },
         { productName: 'Compact Loveseat', description: 'Two-seater for small rooms', price: 2200000, categoryId: sofas._id, createdAt: day(2) },
-        { productName: 'Queen Bed', description: 'Solid teak frame', price: 4000000, categoryId: beds._id, brandId: teak._id, createdAt: day(3) },
+        { productName: 'Queen Bed', description: 'Solid teak frame', price: 4000000, categoryId: beds._id, brandId: teak._id, user: sellerId, createdAt: day(3) },
         { productName: 'Bunk Bed (twin)', description: 'For kids', price: 3000000, categoryId: beds._id, createdAt: day(4) },
     ])
 })
@@ -51,6 +53,11 @@ test('search text is matched literally, not as a pattern', async () => {
 test('filters by category and brand', async () => {
     expect(names(await list({ category: beds._id.toString() }))).toEqual(['Bunk Bed (twin)', 'Queen Bed'])
     expect(names(await list({ brand: teak._id.toString(), sort: 'name' }))).toEqual(['Chesterfield Sofa', 'Queen Bed'])
+})
+
+test('filters by seller', async () => {
+    expect(names(await list({ seller: sellerId.toString() }))).toEqual(['Queen Bed', 'Chesterfield Sofa'])
+    expect((await list({ seller: 'me' })).status).toBe(400)
 })
 
 test('filters by price range in paise (inclusive)', async () => {

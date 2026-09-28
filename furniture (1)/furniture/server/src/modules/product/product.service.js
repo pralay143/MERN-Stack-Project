@@ -20,7 +20,7 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 // One page of products matching the (already validated) filters, plus the
 // total count for pagination.
-async function search({ q, category, brand, minPrice, maxPrice, sort, page, limit }) {
+async function search({ q, category, brand, seller, minPrice, maxPrice, sort, page, limit }) {
     const filter = {}
     if (q) {
         const pattern = new RegExp(escapeRegex(q), 'i')
@@ -28,6 +28,7 @@ async function search({ q, category, brand, minPrice, maxPrice, sort, page, limi
     }
     if (category) filter.categoryId = category
     if (brand) filter.brandId = brand
+    if (seller) filter.user = seller
     if (minPrice !== undefined || maxPrice !== undefined) {
         filter.price = {}
         if (minPrice !== undefined) filter.price.$gte = minPrice

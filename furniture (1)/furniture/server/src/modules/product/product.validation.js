@@ -14,7 +14,7 @@ const update = create.partial()
 
 const SORTS = ['newest', 'price_asc', 'price_desc', 'name']
 
-// GET /products?q=&category=&brand=&minPrice=&maxPrice=&sort=&page=&limit=
+// GET /products?q=&category=&brand=&seller=&minPrice=&maxPrice=&sort=&page=&limit=
 // Query values arrive as strings; empty ones are treated as not set.
 const emptyAsUndefined = (schema) => z.preprocess((v) => (v === '' ? undefined : v), schema)
 
@@ -23,6 +23,8 @@ const listQuery = z
         q: emptyAsUndefined(z.string().trim().max(100, 'Search must be at most 100 characters').optional()),
         category: emptyAsUndefined(objectId('Category').optional()),
         brand: emptyAsUndefined(objectId('Brand').optional()),
+        // The user who listed the product (a vendor's own products).
+        seller: emptyAsUndefined(objectId('Seller').optional()),
         minPrice: emptyAsUndefined(paise('Minimum price').optional()),
         maxPrice: emptyAsUndefined(paise('Maximum price').optional()),
         sort: emptyAsUndefined(z.enum(SORTS, `Sort must be one of: ${SORTS.join(', ')}`).default('newest')),
