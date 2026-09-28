@@ -82,6 +82,22 @@ test('invalid parameters get 400 with a message per field', async () => {
     expect(Object.keys(res.body.errors).sort()).toEqual(['category', 'limit', 'page', 'sort'])
 })
 
+test('malformed query values get 400, not a crash', async () => {
+    // Repeated keys arrive as arrays and bracket keys as objects (qs parsing).
+    for (const query of ['sort=name&sort=price_asc', 'q[$regex]=.*', 'category[$ne]=x', 'page=abc', 'limit=2.5']) {
+        const res = await api.get(`/api/v1/products?${query}`)
+        expect(res.status).toBe(400)
+        expect(res.body.errors).toBeDefined()
+    }
+})
+
+test('a page past the end is empty but keeps the totals', async () => {
+    const res = await list({ page: 9 })
+    expect(res.status).toBe(200)
+    expect(res.body.data).toEqual([])
+    expect(res.body.meta).toEqual({ page: 9, limit: 12, total: 4, pages: 1 })
+})
+
 test('a minimum above the maximum is rejected', async () => {
     const res = await list({ minPrice: 500, maxPrice: 100 })
     expect(res.status).toBe(400)
