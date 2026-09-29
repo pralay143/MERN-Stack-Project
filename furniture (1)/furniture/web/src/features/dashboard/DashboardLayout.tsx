@@ -6,6 +6,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth'
 
 const sections = [
   { to: 'products', label: 'Products', adminOnly: false },
+  { to: 'orders', label: 'Orders', adminOnly: false },
   { to: 'categories', label: 'Categories', adminOnly: true },
   { to: 'brands', label: 'Brands', adminOnly: true },
   { to: 'users', label: 'Users', adminOnly: true },

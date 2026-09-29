@@ -79,17 +79,17 @@ describe('access', () => {
     expect(await screen.findByText('This page isn’t available to your account')).toBeInTheDocument()
   })
 
-  test('a seller sees only the Products section', async () => {
+  test('a seller sees only the Products and Orders sections', async () => {
     renderRoute(<DashboardLayout />, { path: '/dashboard' })
     const nav = await screen.findByRole('navigation', { name: 'Dashboard' })
-    expect(within(nav).getAllByRole('link').map((l) => l.textContent)).toEqual(['Products'])
+    expect(within(nav).getAllByRole('link').map((l) => l.textContent)).toEqual(['Products', 'Orders'])
   })
 
   test('an admin sees every section', async () => {
     auth.fetchCurrentUser.mockResolvedValue(admin)
     renderRoute(<DashboardLayout />, { path: '/dashboard' })
     const nav = await screen.findByRole('navigation', { name: 'Dashboard' })
-    expect(within(nav).getAllByRole('link').map((l) => l.textContent)).toEqual(['Products', 'Categories', 'Brands', 'Users'])
+    expect(within(nav).getAllByRole('link').map((l) => l.textContent)).toEqual(['Products', 'Orders', 'Categories', 'Brands', 'Users'])
   })
 })
 
