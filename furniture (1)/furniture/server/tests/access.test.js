@@ -24,6 +24,8 @@ const PUBLIC = new Set([
     'GET /api/v1/states',
     'GET /api/v1/cities',
     'GET /api/v1/vendor-products',
+    // Called by Razorpay; protected by its signature instead of a login.
+    'POST /api/v1/payments/razorpay/webhook',
     // Legacy equivalents used by the old client
     'POST /user/user',
     'POST /user/user/login',

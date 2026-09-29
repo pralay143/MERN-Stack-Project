@@ -1,3 +1,6 @@
+import { Link } from 'react-router'
+import { buttonClasses } from '@/components/ui/buttonClasses'
+import { cn } from '@/lib/cn'
 import { Container } from '@/components/ui/misc'
 import { AddressBook } from '@/features/addresses/AddressBook'
 import { useCurrentUser } from '@/features/auth/hooks'
@@ -18,7 +21,10 @@ export function AccountPage() {
   return (
     <Container className="py-12">
       <h1 className="text-4xl">Your account</h1>
-      <p className="mt-2 text-muted">Your details and delivery addresses. Orders will appear here too.</p>
+      <p className="mt-2 text-muted">Your details, orders and delivery addresses.</p>
+      <Link to="/orders" className={cn(buttonClasses({ variant: 'secondary' }), 'mt-6')}>
+        Your orders
+      </Link>
       <dl className="mt-8 max-w-xl divide-y divide-line rounded-card border border-line bg-surface">
         {rows.map(([label, value]) => (
           <div key={label} className="grid grid-cols-3 gap-4 px-6 py-4">

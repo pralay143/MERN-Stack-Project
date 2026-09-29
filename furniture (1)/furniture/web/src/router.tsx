@@ -41,6 +41,28 @@ export const router = createBrowserRouter([
             ),
           })),
       },
+      {
+        path: 'orders',
+        lazy: () =>
+          import('@/pages/OrdersPage').then(({ OrdersPage }) => ({
+            Component: () => (
+              <RequireAuth>
+                <OrdersPage />
+              </RequireAuth>
+            ),
+          })),
+      },
+      {
+        path: 'orders/:id',
+        lazy: () =>
+          import('@/pages/OrderPage').then(({ OrderPage }) => ({
+            Component: () => (
+              <RequireAuth>
+                <OrderPage />
+              </RequireAuth>
+            ),
+          })),
+      },
       { path: 'login', lazy: () => import('@/pages/LoginPage').then((m) => ({ Component: m.LoginPage })) },
       { path: 'register', lazy: () => import('@/pages/RegisterPage').then((m) => ({ Component: m.RegisterPage })) },
       {
@@ -66,6 +88,7 @@ export const router = createBrowserRouter([
             path: 'products/:id/edit',
             lazy: () => import('@/features/dashboard/ProductFormPage').then((m) => ({ Component: m.EditProductPage })),
           },
+          { path: 'orders', lazy: () => import('@/features/dashboard/SoldOrdersPage').then((m) => ({ Component: m.SoldOrdersPage })) },
           { path: 'categories', lazy: () => adminPage(import('@/features/dashboard/CategoriesPage').then((m) => m.CategoriesPage)) },
           { path: 'brands', lazy: () => adminPage(import('@/features/dashboard/BrandsPage').then((m) => m.BrandsPage)) },
           { path: 'users', lazy: () => adminPage(import('@/features/dashboard/UsersPage').then((m) => m.UsersPage)) },

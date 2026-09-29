@@ -1,6 +1,7 @@
 const { mongoUri, port, jwtSecret } = require('./config/env')
 const { connectDb } = require('./config/db')
 const app = require('./app')
+const { expireUnpaid } = require('./modules/order/order.service')
 
 async function start() {
     if (!mongoUri) {
@@ -21,6 +22,10 @@ async function start() {
         console.error('error in database connection........', err.message)
         process.exit(1)
     }
+
+    // Cancel unpaid orders past their payment window (and release their
+    // stock) every few minutes. unref() so this timer never keeps the process alive.
+    setInterval(() => expireUnpaid().catch((err) => console.error('Expiring unpaid orders failed:', err)), 5 * 60_000).unref()
 
     app.listen(port, () => {
         console.log('server is running at port number ', port)

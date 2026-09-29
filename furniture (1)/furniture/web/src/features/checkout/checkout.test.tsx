@@ -77,7 +77,7 @@ describe('checkout', () => {
     expect(screen.getByRole('region', { name: '2. Items' })).toHaveTextContent('Grey Sofa')
     const aside = screen.getByRole('complementary', { name: 'Order summary' })
     expect(within(aside).getByText('Free')).toBeInTheDocument()
-    expect(within(aside).getByRole('button', { name: 'Pay ₹38,500' })).toBeDisabled()
+    expect(within(aside).getByRole('button', { name: 'Pay ₹38,500' })).toBeEnabled()
   })
 
   test('choosing another address asks the server again for that address', async () => {
