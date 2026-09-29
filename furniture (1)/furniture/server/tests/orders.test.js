@@ -75,7 +75,7 @@ describe('placing an order', () => {
         expect(order.address).toMatchObject({ city: 'Ahmedabad', pincode: '380009' })
 
         expect(payment).toMatchObject({ razorpayOrderId: order.payment.razorpayOrderId, amount: order.total, currency: 'INR', keyId: process.env.RAZORPAY_KEY_ID })
-        expect(payment.prefill).toMatchObject({ email: 'asha@example.com', contact: '9876543210' })
+        expect(payment.prefill).toMatchObject({ email: 'asha@example.com', contact: '+919876543210' })
         expect(razorpay.createOrder).toHaveBeenLastCalledWith(expect.objectContaining({ amount: order.total, receipt: order.orderNumber }))
 
         expect(await stockOf(lamp)).toBe(3)

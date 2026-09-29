@@ -118,7 +118,8 @@ const paymentOptions = (order, user) => ({
     currency: 'INR',
     name: 'E-Furniture',
     description: `Order ${order.orderNumber}`,
-    prefill: { name: order.address.fullName || user.name, email: user.email, contact: order.address.phone },
+    // Razorpay pre-fills the mobile number only with the country code.
+    prefill: { name: order.address.fullName || user.name, email: user.email, contact: `+91${order.address.phone}` },
 })
 
 function requirePayments() {

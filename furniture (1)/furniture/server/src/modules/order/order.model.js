@@ -88,9 +88,11 @@ orderSchema.methods.setStatus = function (status, note) {
 }
 
 // EF-<yymmdd>-<6 random letters/digits>, avoiding look-alikes (0/O, 1/I).
+// The date is India's (IST), matching what customers see on the order.
+const istDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' })
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 function newOrderNumber(date = new Date()) {
-    const ymd = date.toISOString().slice(2, 10).replace(/-/g, '')
+    const ymd = istDate.format(date).slice(2).replace(/-/g, '')
     const random = Array.from(crypto.randomBytes(6), (b) => ALPHABET[b % ALPHABET.length]).join('')
     return `EF-${ymd}-${random}`
 }
