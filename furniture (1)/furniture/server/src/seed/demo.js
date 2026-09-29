@@ -6,7 +6,7 @@ const Category = require('../modules/category/category.model')
 const Product = require('../modules/product/product.model')
 const User = require('../modules/user/user.model')
 const { uploadDir } = require('../config/env')
-const { brands, products } = require('./demoData')
+const { brands, products, DEFAULT_STOCK } = require('./demoData')
 
 const IMAGE_DIR = path.join(__dirname, 'demo-images')
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png' }
@@ -38,13 +38,19 @@ async function seedDemo({ ownerEmail = 'admin@efurniture.local' } = {}) {
     let added = 0
     // Older products first, so "newest" puts the end of the list on top.
     for (const [index, item] of products.entries()) {
-        if (await Product.exists({ productName: item.productName })) continue
+        const stock = item.stock ?? DEFAULT_STOCK
+        if (await Product.exists({ productName: item.productName })) {
+            // Demo products seeded before stock existed get it now.
+            await Product.updateOne({ productName: item.productName, stock: { $exists: false } }, { $set: { stock } })
+            continue
+        }
         if (!categoryIds[item.category]) throw new Error(`Unknown category "${item.category}"; run the normal seed first`)
 
         await Product.create({
             productName: item.productName,
             description: item.description,
             price: item.price,
+            stock,
             categoryId: categoryIds[item.category],
             brandId: brandIds[item.brand],
             user: owner._id,

@@ -6,6 +6,13 @@ const create = z.object({
     productName: text('Product name', 200),
     description: optionalText('Description', 5000),
     price: paise('Price'),
+    // Sent as text in the multipart form. Leaving it out means none in stock yet.
+    stock: z.coerce
+        .number('Stock must be a number')
+        .int('Stock must be a whole number')
+        .min(0, 'Stock cannot be negative')
+        .max(100000, 'Stock must be at most 100000')
+        .optional(),
     categoryId: objectId('Category'),
     brandId: objectId('Brand').optional(),
 })

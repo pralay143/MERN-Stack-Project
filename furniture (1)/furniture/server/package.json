@@ -9,7 +9,8 @@
     "test": "jest",
     "seed": "node src/seed/run.js",
     "seed:reset": "node src/seed/run.js --reset",
-    "seed:demo": "node src/seed/run.js --demo"
+    "seed:demo": "node src/seed/run.js --demo",
+    "check:razorpay": "node scripts/check-razorpay.js"
   },
   "author": "roman",
   "license": "ISC",

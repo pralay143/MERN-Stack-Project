@@ -1,5 +1,8 @@
 // Sample catalogue for development and demos (npm run seed:demo). Images are
-// in ./demo-images. Prices are in paise.
+// in ./demo-images. Prices are in paise. Stock is DEFAULT_STOCK unless given,
+// with one nearly sold out and one sold out to show those states.
+
+const DEFAULT_STOCK = 8
 
 const brands = ['Oakwood & Co', 'Rattan Republic', 'Sheesham House', 'Nordic Nest']
 
@@ -21,7 +24,7 @@ const products = [
     // Beds
     { productName: 'Espresso Sleigh Bed', category: 'Beds', brand: 'Oakwood & Co', price: rupees(58999), image: 'img24.jpeg',
       description: 'A curved sleigh headboard and footboard in a rich espresso finish. King size.' },
-    { productName: 'Panelled King Bed', category: 'Beds', brand: 'Oakwood & Co', price: rupees(64500), image: 'img22.jpeg',
+    { productName: 'Panelled King Bed', category: 'Beds', brand: 'Oakwood & Co', price: rupees(64500), image: 'img22.jpeg', stock: 2,
       description: 'Tall raised-panel headboard in dark walnut, with turned feet. A statement bed built to last.' },
     { productName: 'White Panel Queen Bed', category: 'Beds', brand: 'Nordic Nest', price: rupees(42000), image: 'img21.jpeg',
       description: 'Painted white panel headboard with a soft grey tone. Queen size.' },
@@ -39,7 +42,7 @@ const products = [
       description: 'Hand-woven natural rattan egg chair on a powder-coated stand, with a plush seat cushion.' },
     { productName: 'Cocoon Hanging Chair', category: 'Chairs', brand: 'Rattan Republic', price: rupees(21999), image: 'img7.jpeg',
       description: 'A teardrop cocoon in white wicker, lined with cushions. Hangs from a ceiling hook.' },
-    { productName: 'Wicker Pod Chair', category: 'Chairs', brand: 'Rattan Republic', price: rupees(26500), image: 'img6.jpeg',
+    { productName: 'Wicker Pod Chair', category: 'Chairs', brand: 'Rattan Republic', price: rupees(26500), image: 'img6.jpeg', stock: 0,
       description: 'An outdoor-ready pod in woven resin wicker with a deep cushioned seat.' },
 
     // Arm chairs
@@ -59,4 +62,4 @@ const products = [
       description: 'Light oak vanity with a mirror, drawers and a matching stool.' },
 ]
 
-module.exports = { brands, products }
+module.exports = { brands, products, DEFAULT_STOCK }

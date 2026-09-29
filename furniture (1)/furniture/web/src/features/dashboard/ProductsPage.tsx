@@ -8,6 +8,7 @@ import { Alert, EmptyState, Skeleton } from '@/components/ui/misc'
 import { SearchField } from '@/components/ui/SearchField'
 import { cn } from '@/lib/cn'
 import { formatPaise } from '@/lib/money'
+import { stockStatus } from '@/lib/stock'
 import { hasRole, useCurrentUser } from '@/features/auth/hooks'
 import { parseFilters, withFilter } from '@/features/products/filters'
 import { useProducts } from '@/features/products/hooks'
@@ -107,6 +108,9 @@ export function ProductsPage() {
                     Price
                   </th>
                   <th scope="col" className="px-4 py-3 text-right font-medium">
+                    Stock
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-right font-medium">
                     <span className="sr-only">Actions</span>
                   </th>
                 </tr>
@@ -126,6 +130,9 @@ export function ProductsPage() {
                     </td>
                     <td className="px-4 py-3 text-muted">{product.categoryId?.categoryName ?? '—'}</td>
                     <td className="px-4 py-3 text-right font-medium">{formatPaise(product.price)}</td>
+                    <td className={cn('px-4 py-3 text-right', product.stock <= 0 ? 'text-danger' : stockStatus(product.stock).tone === 'low' && 'text-terracotta')}>
+                      {product.stock <= 0 ? 'Sold out' : product.stock}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <Link

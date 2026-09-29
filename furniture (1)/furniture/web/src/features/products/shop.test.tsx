@@ -22,6 +22,7 @@ function product(n: number, price = 3299900): Product {
     _id: `p${n}`,
     productName: `Product ${n}`,
     price,
+    stock: 8,
     categoryId: sofas,
     brandId: null,
     createdAt: '2026-01-01T00:00:00.000Z',

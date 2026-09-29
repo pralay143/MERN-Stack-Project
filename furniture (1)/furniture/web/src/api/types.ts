@@ -45,12 +45,30 @@ export interface Product {
   description?: string
   /** Price in paise (₹1 = 100). */
   price: number
+  /** Units available to buy (0 = sold out). */
+  stock: number
   categoryId: Category | null
   brandId: Brand | null
   user?: Id
   file?: ProductImage
   createdAt: string
   updatedAt: string
+}
+
+/** A saved delivery address (India). */
+export interface Address {
+  _id: Id
+  fullName: string
+  /** 10-digit mobile number. */
+  phone: string
+  line1: string
+  line2?: string
+  landmark?: string
+  city: string
+  state: string
+  /** 6-digit PIN code. */
+  pincode: string
+  isDefault: boolean
 }
 
 /** Every successful response: { message, data }. */

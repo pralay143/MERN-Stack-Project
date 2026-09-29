@@ -43,6 +43,7 @@ const product: Product = {
   productName: 'Wicker Pod Chair',
   description: 'Hand-woven.',
   price: 2650000,
+  stock: 5,
   categoryId: chairs,
   brandId: null,
   user: vendor._id,
@@ -152,7 +153,7 @@ describe('product form', () => {
 
     expect(await screen.findByText('Back on the list')).toBeInTheDocument()
     expect(dashboard.createProduct).toHaveBeenCalledWith(
-      expect.objectContaining({ productName: 'Rattan Chair', price: 1249950, categoryId: chairs._id, brandId: undefined, image: photo }),
+      expect.objectContaining({ productName: 'Rattan Chair', price: 1249950, stock: 1, categoryId: chairs._id, brandId: undefined, image: photo }),
       expect.anything(),
     )
   })

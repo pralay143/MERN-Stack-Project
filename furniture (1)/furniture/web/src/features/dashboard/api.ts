@@ -9,6 +9,8 @@ export interface ProductInput {
   productName: string
   description: string
   price: number
+  /** Units in stock (0 = sold out). */
+  stock: number
   categoryId: Id
   brandId?: Id
   /** Required when creating; when editing, only sent to replace the image. */

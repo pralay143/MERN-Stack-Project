@@ -31,8 +31,11 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   })
 }
 
-/** Site header. `actions` is the right-hand area (account links). */
-export function Header({ actions }: { actions?: ReactNode }) {
+/**
+ * Site header. `actions` is the right-hand area (account links), moved into
+ * the menu on small screens; `cart` stays visible at every size.
+ */
+export function Header({ actions, cart }: { actions?: ReactNode; cart?: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
 
@@ -47,11 +50,14 @@ export function Header({ actions }: { actions?: ReactNode }) {
 
         <SearchBox className="ml-auto hidden w-72 lg:block" />
 
-        <div className="ml-auto hidden items-center gap-2 md:flex lg:ml-0">{actions}</div>
+        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          <div className="hidden items-center gap-2 md:flex">{actions}</div>
+          {cart}
+        </div>
 
         <button
           type="button"
-          className="ml-auto inline-flex size-10 items-center justify-center rounded-full hover:bg-sand md:hidden"
+          className="-ml-4 inline-flex size-10 items-center justify-center rounded-full hover:bg-sand md:hidden"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           onClick={() => setMenuOpen((open) => !open)}

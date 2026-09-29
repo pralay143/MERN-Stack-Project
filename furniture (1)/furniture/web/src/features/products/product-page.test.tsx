@@ -22,6 +22,7 @@ function product(id: string, name: string): Product {
     productName: name,
     description: 'Solid sheesham.',
     price: 5899900,
+    stock: 8,
     categoryId: beds,
     brandId: { _id: 'b1', brandName: 'Oakwood & Co' },
     file: { url: '/uploads/bed.jpg' },
@@ -65,6 +66,17 @@ describe('product page', () => {
     expect(within(related).getByRole('link', { name: /Panelled King Bed/ })).toHaveAttribute('href', '/products/p2')
     // The product itself isn't suggested.
     expect(within(related).queryByText('Espresso Sleigh Bed')).not.toBeInTheDocument()
+  })
+
+  test.each([
+    [8, 'In stock'],
+    [2, 'Only 2 left'],
+    [0, 'Sold out'],
+  ])('stock %s shows “%s”', async (stock, label) => {
+    mocked.fetchProduct.mockResolvedValue({ ...product('p1', 'Espresso Sleigh Bed'), stock })
+    renderProduct()
+    await screen.findByRole('heading', { level: 1 })
+    expect(screen.getAllByText(label).length).toBeGreaterThan(0)
   })
 
   test.each([400, 404])('a %s shows the not-found page', async (status) => {
