@@ -3,6 +3,8 @@ const asyncHandler = require('../../utils/asyncHandler')
 const ApiError = require('../../utils/ApiError')
 const Order = require('./order.model')
 const orderService = require('./order.service')
+const fulfilment = require('./fulfilment.service')
+const { hasRole } = require('../../middleware/auth')
 
 const orderIdParam = (req) => {
     if (!mongoose.isValidObjectId(req.params.id)) throw ApiError.badRequest('Invalid order id')
@@ -28,11 +30,23 @@ const listMine = asyncHandler(async (req, res) => {
     res.json({ message: 'Orders found', data: items, meta: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) } })
 })
 
-// GET /orders/:id: the caller's own order.
-const getMine = asyncHandler(async (req, res) => {
-    const order = await Order.findOne({ _id: orderIdParam(req), user: req.user._id })
-    if (!order) throw ApiError.notFound('Order not found')
-    res.json({ message: 'Order found', data: order })
+// GET /orders/:id: for the buyer, an admin, or a seller with items in it
+// (sellers see only their own items).
+const get = asyncHandler(async (req, res) => {
+    res.json({ message: 'Order found', data: await fulfilment.getForUser(req.user, orderIdParam(req)) })
+})
+
+// GET /orders/sold: every order for admins; a seller's paid orders.
+const listSold = asyncHandler(async (req, res) => {
+    const { items, meta } = await fulfilment.listSold(req.user, req.validQuery)
+    res.json({ message: 'Orders found', data: items, meta })
+})
+
+// PATCH /orders/:id/items/:productId { status }: a seller (or admin) ships or delivers an item.
+const updateItemStatus = asyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.productId)) throw ApiError.badRequest('Invalid product id')
+    const order = await fulfilment.updateItemStatus(req.user, orderIdParam(req), req.params.productId, req.body.status)
+    res.json({ message: 'Item updated', data: order })
 })
 
 // POST /orders/:id/pay: Razorpay Checkout options to pay an unpaid order.
@@ -47,9 +61,20 @@ const verify = asyncHandler(async (req, res) => {
     res.json({ message: 'Payment confirmed', data: order })
 })
 
-// POST /orders/:id/cancel: the customer cancels an unpaid order.
+// POST /orders/:id/cancel: the buyer cancels their unpaid order; an admin
+// cancels any unpaid order, or a paid one that hasn't shipped.
 const cancel = asyncHandler(async (req, res) => {
-    res.json({ message: 'Order cancelled', data: await orderService.cancelUnpaid(req.user, orderIdParam(req)) })
+    const id = orderIdParam(req)
+    if (hasRole(req.user, 'admin')) {
+        const order = await Order.findById(id)
+        if (order && order.status !== 'pending_payment') {
+            return res.json({ message: 'Order cancelled', data: await fulfilment.adminCancel(id) })
+        }
+        if (order && order.user.toString() !== req.user._id.toString()) {
+            return res.json({ message: 'Order cancelled', data: await orderService.cancelUnpaid({ _id: order.user }, id) })
+        }
+    }
+    res.json({ message: 'Order cancelled', data: await orderService.cancelUnpaid(req.user, id) })
 })
 
-module.exports = { place, listMine, getMine, retryPayment, verify, cancel }
+module.exports = { place, listMine, get, listSold, updateItemStatus, retryPayment, verify, cancel }

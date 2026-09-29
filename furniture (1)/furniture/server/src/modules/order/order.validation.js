@@ -1,4 +1,5 @@
 const { z, objectId } = require('../../utils/validators')
+const { ORDER_STATUSES } = require('./order.model')
 
 // POST /orders: place the cart as an order to this (own) address.
 const place = z.object({ addressId: objectId('Address') })
@@ -12,4 +13,14 @@ const verify = z
     })
     .transform((v) => ({ razorpayOrderId: v.razorpay_order_id, razorpayPaymentId: v.razorpay_payment_id, signature: v.razorpay_signature }))
 
-module.exports = { place, verify }
+// PATCH /orders/:id/items/:productId: move an item on (shipped, then delivered).
+const itemStatus = z.object({ status: z.enum(['shipped', 'delivered'], 'Status must be shipped or delivered') })
+
+// GET /orders/sold?status=&page=&limit=
+const soldQuery = z.object({
+    status: z.preprocess((v) => (v === '' ? undefined : v), z.enum(ORDER_STATUSES, 'Unknown status').optional()),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+})
+
+module.exports = { place, verify, itemStatus, soldQuery }
