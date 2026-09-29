@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-E-furniture marketplace (MERN). Two independent npm projects with no root package.json:
+E-furniture marketplace (MERN). Independent npm projects with no root package.json:
 
 - `server/`: Express 4.22 + Mongoose 8 REST API (CommonJS), tested with Jest + Supertest
-- `client/`: Create React App (React 18, react-router-dom v6, react-hook-form, axios, react-toastify, Bootstrap/MUI/Tailwind mixed)
+- `web/`: the new client (Vite, React 19, TypeScript, Tailwind 4, TanStack Query, React Router 7), tested with Vitest + Testing Library. Covers the storefront and the seller/admin dashboards.
+- `client/`: the old Create React App client (React 18, Bootstrap/MUI/Tailwind mixed). Kept until `web/` also has cart and checkout; don't add features to it.
 
 The git root is two levels up (`MERN-Stack-Project/`), and this project sits under a folder with a space in its name (`furniture (1)/`). Quote paths in shell commands.
 
@@ -23,8 +24,15 @@ cd server && npx jest tests/v1-routes.test.js  # one file
 cd server && npx jest -t "duplicate email"     # tests whose name matches
 cd server && npm run seed                      # add missing roles, categories, admin user
 cd server && npm run seed:reset                # drop the database, then seed
+cd server && npm run seed:demo                 # also 4 brands and 20 products with photos
 
-# UI: http://localhost:3000
+# New client: http://localhost:5173 (proxies /api and /uploads to the API)
+cd web && npm install && npm run dev
+cd web && npm test                             # Vitest; API modules are mocked with vi.mock
+cd web && npm run typecheck && npm run lint    # tsc -b, oxlint
+cd web && npm run build
+
+# Old client: http://localhost:3000
 cd client && npm install && npm start
 cd client && npm run build
 cd client && npm test -- --watchAll=false App  # CRA/Jest (only the default App.test.js exists)
@@ -59,7 +67,17 @@ The client lints through CRA's `react-app` ESLint config during `npm start`/`bui
 - **Uploads** (`middleware/upload.js`): JPEG/PNG/WebP only, checked by content; `MAX_UPLOAD_MB`; random UUID filenames; stored in `UPLOAD_DIR` (default `server/uploads`) and served at `/uploads/<name>`.
 - **Tests**: `tests/access.test.js` discovers every route and requires 401 when anonymous unless the route is on its `PUBLIC` list, and 403 for roles a `requireRole` guard excludes. Add new public routes to that list deliberately. `tests/helpers/auth.js` gives logged-in agents per role; `tests/setup/env.js` sets test-only env (low bcrypt cost, temporary upload folder).
 
-## Client architecture
+## Web client architecture (`web/`)
+
+- `src/router.tsx` declares every route; pages load lazily. `/shop`, `/products/:id`, `/about`, `/login`, `/register`, `/account`, and `/dashboard/*` (Vendor and Admin; categories, brands and users are Admin only via `RequireAuth roles`).
+- `src/api/client.ts` is the one axios instance (`/api/v1`, `withCredentials`), with `errorMessage` / `fieldErrors` / `errorStatus` helpers; `src/api/types.ts` mirrors the API's JSON. Each feature in `src/features/<name>/` has `api.ts` (plain request functions), `hooks.ts` (TanStack Query hooks and query keys) and its components. Mutations invalidate the affected keys (`productKeys`, `categoryKeys`, `brandKeys`).
+- The shop's filters live in the URL (`features/products/filters.ts` parses and cleans them); the query key is derived from the parsed filters and uses `keepPreviousData`. `GET /api/v1/products` takes `q`, `category`, `brand`, `seller`, `minPrice`/`maxPrice` (paise), `sort` (`newest`, `price_asc`, `price_desc`, `name`), `page`, `limit` (max 48) and returns `meta: { page, limit, total, pages }`.
+- Money: prices are paise everywhere; show them with `formatPaise` and read typed rupees with `rupeesToPaise` (`src/lib/money.ts`).
+- Styling: Tailwind tokens in `src/index.css` (`bg-cream`, `text-walnut`, `rounded-card`, …), never raw hex. Shared UI in `src/components/ui/` (`Button`, `TextField`/`SelectField`/`TextAreaField`, `SearchField`, `Skeleton`, `EmptyState`, `Alert`).
+- Forms: react-hook-form + zod schemas that repeat the API's limits; `applyServerErrors` puts the API's per-field 400 messages under the inputs.
+- Tests render with `renderRoute` (`src/test/render.tsx`) and mock a feature's `api.ts` with `vi.mock`.
+
+## Old client architecture (`client/`)
 
 - All routes are declared in `client/src/App.js`, which has three areas:
   - Public storefront pages in `src/Components/` and `src/Components/pages/` (Main, Shop, Login, Register, Cart, Customerdashboard, …)

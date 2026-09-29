@@ -23,7 +23,8 @@ module.exports = {
 
     // Browser origins allowed to call the API with credentials
     // (comma-separated, e.g. https://efurniture.example.com).
-    corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:3000')
+    // Defaults to the new client's dev server (5173) and the old CRA app (3000).
+    corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000')
         .split(',')
         .map((o) => o.trim())
         .filter(Boolean),
