@@ -36,6 +36,12 @@ export function productSchema({ requireImage }: { requireImage: boolean }) {
     productName: z.string().trim().min(1, 'Enter a product name').max(200, 'Name must be at most 200 characters'),
     description: z.string().trim().max(5000, 'Description must be at most 5000 characters'),
     price,
+    stock: z
+      .string()
+      .trim()
+      .min(1, 'Enter how many are in stock')
+      .regex(/^\d+$/, 'Stock must be a whole number, 0 or more')
+      .refine((v) => Number(v) <= 100000, 'Stock must be at most 100000'),
     categoryId: z.string().min(1, 'Choose a category'),
     brandId: z.string(),
     image: imageRule(requireImage),

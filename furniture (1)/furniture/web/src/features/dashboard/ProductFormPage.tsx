@@ -78,6 +78,7 @@ function ProductForm({ product }: { product?: Product }) {
       productName: product?.productName ?? '',
       description: product?.description ?? '',
       price: product ? String(product.price / 100) : '',
+      stock: product ? String(product.stock) : '1',
       categoryId: product?.categoryId?._id ?? '',
       brandId: product?.brandId?._id ?? '',
     },
@@ -91,6 +92,7 @@ function ProductForm({ product }: { product?: Product }) {
       productName: values.productName,
       description: values.description,
       price: rupeesToPaise(values.price),
+      stock: Number(values.stock),
       categoryId: values.categoryId,
       brandId: values.brandId || undefined,
       image: values.image?.[0],
@@ -98,7 +100,7 @@ function ProductForm({ product }: { product?: Product }) {
     const options = {
       onSuccess: () =>
         navigate(BACK, { state: { notice: product ? `Saved “${input.productName}”.` : `Added “${input.productName}” to the shop.` } }),
-      onError: (error: unknown) => applyServerErrors(error, setError, ['productName', 'description', 'price', 'categoryId', 'brandId']),
+      onError: (error: unknown) => applyServerErrors(error, setError, ['productName', 'description', 'price', 'stock', 'categoryId', 'brandId']),
     }
     if (product) update.mutate({ id: product._id, ...input }, options)
     else create.mutate({ ...input, image: input.image as File }, options)
@@ -124,8 +126,17 @@ function ProductForm({ product }: { product?: Product }) {
           error={errors.description?.message}
           {...register('description')}
         />
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2">
           <TextField label="Price (₹)" inputMode="decimal" placeholder="24999" error={errors.price?.message} {...register('price')} />
+          <TextField
+            label="In stock"
+            inputMode="numeric"
+            hint="Set to 0 to show it as sold out."
+            error={errors.stock?.message}
+            {...register('stock')}
+          />
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
           <SelectField label="Category" disabled={!categories.data} error={errors.categoryId?.message} {...register('categoryId')}>
             <option value="">Choose…</option>
             {categoryOptions.map((c) => (

@@ -6,6 +6,7 @@ import { buttonClasses } from '@/components/ui/buttonClasses'
 import { Alert, Badge, Container, Skeleton } from '@/components/ui/misc'
 import { cn } from '@/lib/cn'
 import { formatPaise } from '@/lib/money'
+import { stockStatus } from '@/lib/stock'
 import { useProduct, useProducts } from '@/features/products/hooks'
 import { ProductCard } from '@/features/products/ProductCard'
 import { NotFoundPage } from './NotFoundPage'
@@ -52,10 +53,7 @@ export function ProductPage() {
           <p className="text-2xl font-medium">{formatPaise(data.price)}</p>
           {data.description && <p className="leading-relaxed whitespace-pre-line text-muted">{data.description}</p>}
 
-          <div className="mt-2 rounded-card border border-line bg-surface p-5 text-sm">
-            <p className="font-medium">Online ordering opens soon</p>
-            <p className="mt-1 text-muted">Cart and checkout are on their way. Until then, browse and shortlist your favourites.</p>
-          </div>
+          <StockLine stock={data.stock} />
 
           <Link to="/shop" className={cn(buttonClasses({ variant: 'secondary' }), 'self-start')}>
             Back to the shop
@@ -65,6 +63,17 @@ export function ProductPage() {
 
       {data.categoryId && <RelatedProducts category={data.categoryId} excludeId={data._id} />}
     </Container>
+  )
+}
+
+function StockLine({ stock }: { stock: number }) {
+  const status = stockStatus(stock)
+  const dot = { ok: 'bg-success', low: 'bg-terracotta', out: 'bg-muted' }[status.tone]
+  return (
+    <p className="flex items-center gap-2 text-sm font-medium">
+      <span aria-hidden="true" className={cn('size-2 rounded-full', dot)} />
+      {status.label}
+    </p>
   )
 }
 

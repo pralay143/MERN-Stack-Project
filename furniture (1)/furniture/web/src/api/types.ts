@@ -45,6 +45,8 @@ export interface Product {
   description?: string
   /** Price in paise (₹1 = 100). */
   price: number
+  /** Units available to buy (0 = sold out). */
+  stock: number
   categoryId: Category | null
   brandId: Brand | null
   user?: Id

@@ -16,6 +16,7 @@ const product = (n: number): Product => ({
   _id: `p${n}`,
   productName: `Chair ${n}`,
   price: 899900,
+  stock: 8,
   categoryId: null,
   brandId: null,
   createdAt: '2026-01-01T00:00:00.000Z',
