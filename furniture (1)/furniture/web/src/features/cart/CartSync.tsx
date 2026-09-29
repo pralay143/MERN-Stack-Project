@@ -4,10 +4,7 @@ import { useCurrentUser } from '@/features/auth/hooks'
 import { mergeCart } from './api'
 import { readGuestCart, writeGuestCart } from './guestCart'
 import { cartKeys } from './hooks'
-
-// One merge at a time (StrictMode runs effects twice in development, and a
-// second merge would add the quantities again).
-let merging = false
+import { isMerging, setMerging } from './mergeState'
 
 /**
  * When someone logs in or signs up with items in their browser cart, those
@@ -20,18 +17,20 @@ export function CartSync() {
 
   useEffect(() => {
     const items = readGuestCart()
-    if (!userId || items.length === 0 || merging) return
-    merging = true
+    // One merge at a time: StrictMode runs effects twice in development, and
+    // a second merge would add the quantities again.
+    if (!userId || items.length === 0 || isMerging()) return
+    setMerging(true)
     mergeCart(items)
-      .then((cart) => {
+      .then(async (cart) => {
         writeGuestCart([])
         queryClient.setQueryData(cartKeys.all, cart)
+        // Checkout may have loaded before the merge finished.
+        await queryClient.invalidateQueries({ queryKey: ['checkout'] })
       })
       // On failure the browser cart is kept, and merged at the next login.
       .catch(() => {})
-      .finally(() => {
-        merging = false
-      })
+      .finally(() => setMerging(false))
   }, [userId, queryClient])
 
   return null

@@ -55,6 +55,22 @@ export interface Product {
   updatedAt: string
 }
 
+/** A saved delivery address (India). */
+export interface Address {
+  _id: Id
+  fullName: string
+  /** 10-digit mobile number. */
+  phone: string
+  line1: string
+  line2?: string
+  landmark?: string
+  city: string
+  state: string
+  /** 6-digit PIN code. */
+  pincode: string
+  isDefault: boolean
+}
+
 /** Every successful response: { message, data }. */
 export interface ApiResponse<T> {
   message: string
