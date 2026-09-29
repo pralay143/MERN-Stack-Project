@@ -20,7 +20,14 @@ function createApp(options = {}) {
     app.use(helmet())
     app.use(corsForOrigins(corsOrigins))
     app.use(rejectForeignOrigins(corsOrigins))
-    app.use(express.json())
+    // Keep the raw bytes of webhook requests: their signature is over the exact body.
+    app.use(
+        express.json({
+            verify: (req, res, buf) => {
+                if (req.originalUrl.startsWith('/api/v1/payments/')) req.rawBody = buf
+            },
+        })
+    )
     app.use(cookieParser())
     app.use(loginLimiter(loginRateLimit))
     app.use(registerLimiter(registerRateLimit))
