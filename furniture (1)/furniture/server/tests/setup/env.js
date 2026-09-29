@@ -15,3 +15,8 @@ process.env.REGISTER_RATE_LIMIT = '100000'
 process.env.UPLOAD_DIR = path.join(os.tmpdir(), `efurniture-test-uploads-${process.env.JEST_WORKER_ID || 0}-${process.pid}`)
 // Small limit so the size check is cheap to test.
 process.env.MAX_UPLOAD_MB = '1'
+// Dummy Razorpay keys: tests mock the Razorpay client, and these make sure the
+// real keys from .env are never used (dotenv doesn't override set values).
+process.env.RAZORPAY_KEY_ID = 'rzp_test_jest_dummy'
+process.env.RAZORPAY_KEY_SECRET = 'jest_dummy_key_secret'
+process.env.RAZORPAY_WEBHOOK_SECRET = 'jest_dummy_webhook_secret'

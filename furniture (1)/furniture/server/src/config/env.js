@@ -40,4 +40,12 @@ module.exports = {
     // Where uploaded images are stored; served at /uploads/<name>.
     uploadDir: process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(SERVER_ROOT, 'uploads'),
     maxUploadBytes: (Number(process.env.MAX_UPLOAD_MB) || 5) * 1024 * 1024,
+
+    // Razorpay (test or live) keys; payments are unavailable without them.
+    razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+    razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET,
+    // Set in the Razorpay dashboard when adding the webhook (optional).
+    razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET,
+    // Unpaid orders are cancelled (and their stock released) after this long.
+    unpaidOrderMinutes: Number(process.env.UNPAID_ORDER_MINUTES) || 30,
 }
