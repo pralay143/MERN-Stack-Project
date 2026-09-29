@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { assetUrl, errorMessage } from '@/api/client'
 import type { Id } from '@/api/types'
 import { Button } from '@/components/ui/Button'
@@ -13,6 +13,8 @@ import { useCurrentUser } from '@/features/auth/hooks'
 import { useCartMerging } from '@/features/cart/mergeState'
 import { useCheckoutSummary } from '@/features/checkout/hooks'
 import type { CheckoutSummary } from '@/features/checkout/api'
+import { OrderPaymentError, usePayOrder } from '@/features/orders/hooks'
+import type { OrderNotice } from './OrderPage'
 
 /** /checkout (logged in): choose where to deliver and review the order. */
 export function CheckoutPage() {
@@ -157,6 +159,27 @@ export function CheckoutPage() {
 }
 
 function OrderSummary({ data, updating }: { data: CheckoutSummary; updating: boolean }) {
+  const pay = usePayOrder()
+  const navigate = useNavigate()
+
+  // Places the order and opens Razorpay. Whatever happens once the order
+  // exists, the customer lands on its page (paid, or waiting for payment).
+  function payNow() {
+    if (!data.address) return
+    pay.mutate(
+      { addressId: data.address._id },
+      {
+        onSuccess: ({ order, outcome }) =>
+          navigate(`/orders/${order._id}`, { state: { notice: outcome === 'paid' ? 'paid' : 'unpaid' } satisfies OrderNotice }),
+        onError: (error) => {
+          if (error instanceof OrderPaymentError) {
+            navigate(`/orders/${error.orderId}`, { state: { notice: 'error', message: error.message } satisfies OrderNotice })
+          }
+        },
+      },
+    )
+  }
+
   return (
     <aside
       aria-labelledby="summary-heading"
@@ -190,12 +213,14 @@ function OrderSummary({ data, updating }: { data: CheckoutSummary; updating: boo
         </ul>
       )}
 
-      <Button size="lg" fullWidth disabled>
+      {pay.isError && !(pay.error instanceof OrderPaymentError) && <Alert>{errorMessage(pay.error)}</Alert>}
+
+      <Button size="lg" fullWidth disabled={!data.canPlaceOrder || !data.address || updating} loading={pay.isPending} onClick={payNow}>
         Pay {formatPaise(data.total)}
       </Button>
       <p className="text-xs text-muted">
-        {data.canPlaceOrder ? 'Online payment is being connected; ordering opens very soon.' : 'Sort out the points above to continue.'}{' '}
-        Prices include GST.
+        {data.canPlaceOrder ? 'You’ll pay securely with Razorpay (cards, UPI, netbanking).' : 'Sort out the points above to continue.'} Prices
+        include GST.
       </p>
     </aside>
   )

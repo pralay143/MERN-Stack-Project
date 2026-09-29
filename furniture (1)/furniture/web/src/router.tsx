@@ -41,6 +41,28 @@ export const router = createBrowserRouter([
             ),
           })),
       },
+      {
+        path: 'orders',
+        lazy: () =>
+          import('@/pages/OrdersPage').then(({ OrdersPage }) => ({
+            Component: () => (
+              <RequireAuth>
+                <OrdersPage />
+              </RequireAuth>
+            ),
+          })),
+      },
+      {
+        path: 'orders/:id',
+        lazy: () =>
+          import('@/pages/OrderPage').then(({ OrderPage }) => ({
+            Component: () => (
+              <RequireAuth>
+                <OrderPage />
+              </RequireAuth>
+            ),
+          })),
+      },
       { path: 'login', lazy: () => import('@/pages/LoginPage').then((m) => ({ Component: m.LoginPage })) },
       { path: 'register', lazy: () => import('@/pages/RegisterPage').then((m) => ({ Component: m.RegisterPage })) },
       {
