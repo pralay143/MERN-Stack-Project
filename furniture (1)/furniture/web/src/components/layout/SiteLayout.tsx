@@ -1,5 +1,7 @@
 import { Outlet, ScrollRestoration } from 'react-router'
 import { AccountActions } from '@/features/auth/AccountActions'
+import { CartLink } from '@/features/cart/CartLink'
+import { CartSync } from '@/features/cart/CartSync'
 import { Footer } from './Footer'
 import { Header } from './Header'
 
@@ -13,7 +15,8 @@ export function SiteLayout() {
       >
         Skip to content
       </a>
-      <Header actions={<AccountActions />} />
+      <Header actions={<AccountActions />} cart={<CartLink />} />
+      <CartSync />
       <main id="main" className="flex-1">
         <Outlet />
       </main>

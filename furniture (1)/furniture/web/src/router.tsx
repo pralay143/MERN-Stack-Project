@@ -29,6 +29,7 @@ export const router = createBrowserRouter([
       { path: 'about', lazy: () => import('@/pages/AboutPage').then((m) => ({ Component: m.AboutPage })) },
       { path: 'shop', lazy: () => import('@/pages/ShopPage').then((m) => ({ Component: m.ShopPage })) },
       { path: 'products/:id', lazy: () => import('@/pages/ProductPage').then((m) => ({ Component: m.ProductPage })) },
+      { path: 'cart', lazy: () => import('@/pages/CartPage').then((m) => ({ Component: m.CartPage })) },
       { path: 'login', lazy: () => import('@/pages/LoginPage').then((m) => ({ Component: m.LoginPage })) },
       { path: 'register', lazy: () => import('@/pages/RegisterPage').then((m) => ({ Component: m.RegisterPage })) },
       {

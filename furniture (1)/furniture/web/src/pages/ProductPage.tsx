@@ -9,6 +9,7 @@ import { formatPaise } from '@/lib/money'
 import { stockStatus } from '@/lib/stock'
 import { useProduct, useProducts } from '@/features/products/hooks'
 import { ProductCard } from '@/features/products/ProductCard'
+import { AddToCart } from '@/features/cart/AddToCart'
 import { NotFoundPage } from './NotFoundPage'
 
 const RELATED_COUNT = 4
@@ -54,6 +55,7 @@ export function ProductPage() {
           {data.description && <p className="leading-relaxed whitespace-pre-line text-muted">{data.description}</p>}
 
           <StockLine stock={data.stock} />
+          <AddToCart product={data} />
 
           <Link to="/shop" className={cn(buttonClasses({ variant: 'secondary' }), 'self-start')}>
             Back to the shop
