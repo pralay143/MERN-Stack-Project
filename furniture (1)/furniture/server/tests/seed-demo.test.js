@@ -39,6 +39,20 @@ test('running it again adds nothing and copies no more images', async () => {
     expect(fs.readdirSync(uploadDir).length).toBe(filesBefore)
 })
 
+test('gives demo products stock, including one low and one sold out', async () => {
+    const stock = Object.fromEntries((await Product.find()).map((p) => [p.productName, p.stock]))
+    expect(stock['Panelled King Bed']).toBe(2)
+    expect(stock['Wicker Pod Chair']).toBe(0)
+    expect(stock['Navy Velvet Loveseat']).toBe(8)
+})
+
+test('fills in stock for demo products seeded before stock existed', async () => {
+    await Product.collection.updateOne({ productName: 'Navy Velvet Loveseat' }, { $unset: { stock: '' } })
+    await seedDemo()
+    const raw = await Product.collection.findOne({ productName: 'Navy Velvet Loveseat' })
+    expect(raw.stock).toBe(8)
+})
+
 test('needs the admin user from the normal seed', async () => {
     await expect(seedDemo({ ownerEmail: 'nobody@example.com' })).rejects.toThrow(/run the normal seed first/)
 })

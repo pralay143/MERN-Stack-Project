@@ -118,6 +118,7 @@ router.post(
     ...vendorOrAdmin,
     ...uploadImage,
     basePriceToPaise,
+    renameBody({ qty: 'stock' }),
     validate(schemas.product.create),
     product.create
 )
